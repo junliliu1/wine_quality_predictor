@@ -1,17 +1,40 @@
 # Wine Quality Predictor
 
+## Project Objective
+
+This project aims to build a reproducible machine learning workflow for predicting wine quality categories using physicochemical features.
+
 ## Project Summary
 
 This project predicts wine quality categories (Low, Medium, High) from physicochemical properties using a Random Forest classifier. Using the Wine Quality dataset from the UCI Machine Learning Repository containing 6,497 wine samples (1,599 red and 4,898 white), we analyze 11 chemical properties including alcohol content, acidity levels, and sulfur compounds to classify wine quality. The Random Forest model was chosen for its ability to capture non-linear relationships, provide interpretable feature importance rankings, and handle the class imbalance inherent in quality ratings. Our analysis identifies alcohol content, volatile acidity, and sulphates as the most influential factors in determining wine quality.
+
+## Method Summary
+
+We combined the red and white wine datasets and used 11 physicochemical features to predict wine quality, grouped into Low, Medium, and High categories. The data was split into training and test sets (80/20). We trained a Random Forest classifier and compared it with Gradient Boosting, Logistic Regression, and SVM. Hyperparameters were tuned using 5-fold cross-validation.
+
+## Results
+
+The Random Forest achieved strong performance on the test set and outperformed the other models.
+
+Model Performance (Accuracy):
+
+- Random Forest (default): 82.5%
+- Random Forest (tuned): 81.8%
+- Gradient Boosting: 76.3%
+- Logistic Regression: 71.5%
+- SVM: 59.9%
+
+The most important predictors of wine quality were: Alcohol (importance: 0.140), Volatile acidity (0.114) and Density (0.103)
+These results align with established enology knowledge that alcohol content and acidity strongly influence sensory quality. Although overall performance was high, predicting the High-quality class remained challenging due to its small representation (~3% of samples).
 
 ## Contributors
 
 The following authors contributed to this project:
 
 * **Junli Liu** ([@junliliu1](https://github.com/junliliu1))
-* **Luis Alvarez**
-* **Purity Jangaya**
-* **Jimmy Wang**
+* **Luis Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
+* **Purity Jangaya** ([@purityj](https://github.com/purityj))
+* **Jimmy Wang** ([@jimmy2026-V](https://github.com/jimmy2026-V))  
 
 ## Dependencies
 
