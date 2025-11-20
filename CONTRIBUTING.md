@@ -65,8 +65,8 @@ If you're new to the project:
 ### Environment Setup
 1. **Fork and Clone the Repository**
    ```bash
-   git clone https://github.com/[your-username]/[project-name].git
-   cd [project-name]
+   git clone https://github.com/junliliu1/wine_quality_predictor.git
+   cd wine_quality_predictor
    ```
 
 2. **Create a Virtual Environment**
@@ -82,7 +82,8 @@ If you're new to the project:
 
 3. **Install Dependencies**
    ```bash
-   pip install -r requirements.txt
+   conda env create -f environment.yml
+   conda activate wine_quality_predictor
    ```
 
 4. **Set Up Pre-commit Hooks** (if applicable)
@@ -317,10 +318,8 @@ Fixes #(issue number)
 ## Additional Resources
 
 ### Helpful Links
-- [Project Documentation](./docs/)
-- [Issue Tracker](https://github.com/[owner]/[repo]/issues)
-- [Project Wiki](https://github.com/[owner]/[repo]/wiki)
-- [Team Agreement](./TEAM_AGREEMENT.md)
+- [Issue Tracker](https://github.com/junliliu1/wine_quality_predictor/issues)
+- [Project Wiki](https://github.com/junliliu1/wine_quality_predictor/wiki)
 
 ### Communication Channels
 - **Issues**: For bug reports and feature requests
