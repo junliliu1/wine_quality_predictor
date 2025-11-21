@@ -6,7 +6,7 @@ This project aims to build a reproducible machine learning workflow for predicti
 
 ## Project Summary
 
-This project predicts wine quality categories (Low, Medium, High) from physicochemical properties using a Random Forest classifier. Using the Wine Quality dataset from the UCI Machine Learning Repository containing 6,497 wine samples (1,599 red and 4,898 white), we analyze 11 chemical properties including alcohol content, acidity levels, and sulfur compounds to classify wine quality. The Random Forest model was chosen for its ability to capture non-linear relationships, provide interpretable feature importance rankings, and handle the class imbalance inherent in quality ratings. Our analysis identifies alcohol content, volatile acidity, and sulphates as the most influential factors in determining wine quality.
+This project predicts wine quality categories (Low, Medium, High) from physicochemical properties using a Random Forest classifier. Using the Wine Quality dataset from the UCI Machine Learning Repository containing 6,497 wine samples (1,599 red and 4,898 white), we analyze 11 chemical properties including alcohol content, acidity levels, and sulphates compounds to classify wine quality. The Random Forest model was chosen for its ability to capture non-linear relationships, provide interpretable feature importance rankings, and handle the class imbalance inherent in quality ratings. Our analysis identifies alcohol content, volatile acidity, and sulphates as the most influential factors in determining wine quality.
 
 ## Method Summary
 
@@ -24,8 +24,12 @@ Model Performance (Accuracy):
 - Logistic Regression: 71.5%
 - SVM: 59.9%
 
-The most important predictors of wine quality were: Alcohol (importance: 0.140), Volatile acidity (0.114) and Density (0.103)
-These results align with established enology knowledge that alcohol content and acidity strongly influence sensory quality. Although overall performance was high, predicting the High-quality class remained challenging due to its small representation (~3% of samples).
+The most important predictors of wine quality were: 
+- Alcohol (importance: 0.140) 
+- Volatile acidity (importance: 0.114)  
+- Density (importance: 0.103)
+
+These results align with established enology knowledge that alcohol content and acidity strongly influence sensory quality. Although overall performance was high, predicting the High-quality class remained challenging due to its limited representation (~3% of samples).
 
 ## Contributors
 
