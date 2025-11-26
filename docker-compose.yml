@@ -1,0 +1,13 @@
+version: "3.8"  
+services:
+  wine-predictor: 
+    build: .   
+    image: group39/wine-quality-predictor:0.0.1  
+    ports:
+      - "8888:8888"  
+    volumes:
+      - .:/home/jovyan/work  
+    environment:
+      - JUPYTER_ENABLE_LAB=yes  
+      - JUPYTER_TOKEN=1234
+    tty: true  
