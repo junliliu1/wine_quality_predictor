@@ -12,3 +12,4 @@ dependencies:
   - jupyterlab=4.0
   - ipykernel
   - pip
+  - conda-lock=>3.0.4

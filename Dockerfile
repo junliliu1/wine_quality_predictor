@@ -1,22 +1,21 @@
-# base image
-FROM quay.io/jupyter/minimal-notebook:afe30f0c9ad8
+# use the miniforge base, make sure you specify a verion
+FROM condaforge/miniforge3:latest
 
-# copy lock file into container 
+# copy the lockfile into the container
+COPY conda-lock.yml conda-lock.yml
 
-COPY conda-linux-64.lock /tmp/conda-linux-64.lock
+# setup conda-lock and install packages from lockfile
+RUN conda install -n base -c conda-forge conda-lock -y
+RUN conda-lock install -n dockerlock conda-lock.yml
 
-# install packages from lock file
-RUN conda create --name wine_quality_predictor_env --file /tmp/conda-linux-64.lock && conda clean --all -y
-
-#activate the virtual environment by default
-SHELL ["conda", "run", "-n", "wine_quality_predictor_env", "/bin/bash", "-c"]
-
-# set working directory 
-WORKDIR /home/jovyan/work
-
-#expose jupyter lab port 
+# expose JupyterLab port
 EXPOSE 8888
 
-#default command 
-CMD ["start-notebook.sh"]
+# sets the default working directory
+# this is also specified in the compose file
+WORKDIR /workplace
+
+# run JupyterLab on container start
+# uses the jupyterlab from the install environment
+CMD ["conda", "run", "--no-capture-output", "-n", "dockerlock", "jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--IdentityProvider.token=''", "--ServerApp.password=''"]
 
