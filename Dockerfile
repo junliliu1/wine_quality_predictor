@@ -25,5 +25,8 @@ EXPOSE 8888
 WORKDIR /workplace
 
 # run JupyterLab on container start
-# uses the jupyterlab from the install environment
+# uses the jupyterlab from the install environment 
 CMD ["conda", "run", "--no-capture-output", "-n", "dockerlock", "jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--IdentityProvider.token=''", "--ServerApp.password=''"]
+
+
+
