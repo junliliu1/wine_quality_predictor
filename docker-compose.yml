@@ -1,0 +1,14 @@
+services:
+  dockerlock:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wine-quality-predictor
+    container_name: wine-quality-predictor
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    stdin_open: true
+    tty: true

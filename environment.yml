@@ -15,3 +15,4 @@ dependencies:
   - ipykernel
   - pandera
   - pip
+  - conda-lock=>3.0.4
