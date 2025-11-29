@@ -27,7 +27,7 @@ To ensure reproducibility, this project uses **Conda** for environment managemen
 
 *Note: Lock files for different operating systems (macOS Intel, macOS ARM, Linux, Windows) are provided in `conda-lock.yml`.*
 
-## How to Run the Analysis in Jupyter Lab
+## How to Run the Analysis in Jupyter Lab - without Docker
 
 Follow these steps to set up the environment and run the analysis:
 
@@ -49,8 +49,6 @@ conda activate wine_quality_predictor
 
 ### Step 3: Run the Analysis
 
-The data files are already included in the `data/` directory.
-
 1. Launch Jupyter Lab:
 ```bash
 jupyter lab
@@ -60,11 +58,17 @@ jupyter lab
 
 3. Run all cells (Kernel > Restart & Run All) to reproduce the analysis and generate the visualizations.
 
-## Dependencies
+## How to Run the Analysis in Jupyter Lab using Docker 
 
 [Docker](https://www.docker.com/) is a container solution used to manage the software dependencies for this project. The Docker image used for this project is based on the condaforge/miniforge3:latest image. Additional dependencies are specified in the [Dockerfile](Dockerfile)
 
-### Installing Docker
+## Usage
+
+Follow the instructions below to reproduce the analysis using Docker.
+
+### Setup
+
+1. Installing Docker
 
 If you don't have Docker installed, download and install it from:
 - **Windows/Mac**: [Docker Desktop](https://www.docker.com/products/docker-desktop)
@@ -75,42 +79,31 @@ To verify Docker is installed correctly, run:
 docker --version
 ```
 
-## Quick Start
+2. Clone this GitHub repository and cd to the root of the repository:
+ ```
+ https://github.com/junliliu1/wine_quality_predictor.git
+ cd wine_quality_predictor
+ ```
 
-## Running the Analysis
+### Running the Analysis
 
-### Step 0: Clone the repo
+The analysis can be run using either of these options depending on your preference. Run all these commands on a terminal from the root of the project.
 
-This is necessary to get the project code, including notebooks, scripts, and other files.
 
-```git clone https://github.com/junliliu1/wine_quality_predictor.git
-cd wine_quality_predictor
+#### Option 1: Build the Docker image locally (recommended for active development)
+
+```
+docker-compose up --build
 ```
 
-### Option 1: Build the Docker image locally (recommended for active development)
-
-```docker-compose up --build
-```
 This will build the Docker image and start the container.
-Once the container is running, a link to access JupyterLab will be shown in the terminal. Copy this link and paste it in your browser to open the notebook.
+Once the container is running, a link to access JupyterLab will be shown in the terminal. Look for a URL that starts with http://127.0.0.1:8888/lab?. Copy and paste that URL into your browser.
 
-Changes made in notebook are reflected locally in cloned repo. Commit and push changes github for others to access.
+Changes made in notebook are reflected locally in cloned repo. Commit and push changes to github for others to access.
 This is best if you want to actively work on the project and potentially rebuild the environment.
 
-### Option 2: Pull a prebuilt image from DockerHub (faster, reproducible environment)
 
-1. Pull the image: 
-
-```docker pull <username>/wine-quality-predictor:latest
-```
-
-2. Pull the container
-
-```docker run -it -p 8888:8888 -v $(pwd):/workplace <username>/wine-quality-predictor:latest
-```
-3. The container will start and provide a localhost URL. Copy this URL and paste it in your browser to access JupyterLab with our project.
-
-## Clean Up
+#### Clean Up
 
 To shut down the container and clean up the resources, type `Ctrl` + `C` in the terminal where you launched the container, and then type:
 
@@ -118,19 +111,40 @@ To shut down the container and clean up the resources, type `Ctrl` + `C` in the 
 docker compose rm
 ```
 
-## Working with the Project in VS Code
+#### Option 2: Pull a prebuilt image from DockerHub (faster, reproducible environment)
 
-If you prefer to work in VS Code, you can run the following from the root of the project in a terminal in VS Code to launch the container in the terminal there:
+1. Pull the image from Dockerhub
 
 ```bash
-docker compose run --rm terminal bash
+docker pull junli73889/wine-quality-predictor:latest
 ```
 
-To exit the container, type `exit` in the terminal.
+2. Run the container
 
-## Usage
+```bash
+docker run -it -p 8888:8888 -v $(pwd):/workplace junli73889/wine-quality-predictor:latest
+```
 
-Once the container is running, you can make predictions by providing wine characteristics as input. The model will return a quality prediction score.
+3. The container will start and provide a localhost URL. Look for a URL that starts with http://127.0.0.1:8888/lab?. Copy and paste that URL into your browser.
+
+
+#### Clean Up
+
+To shut down the container and clean up the resources, type `Ctrl` + `C` in the terminal where you launched the container, and then:
+
+- If it’s running in the background, then: `docker ps`
+- Find the container name or ID, then: : `docker stop <container_id>`
+- Stopping it does NOT delete it. To remove it: `docker rm <container_id>`
+
+
+## Adding a new dependency
+
+1. Add the dependency to the Dockerfile file on a new branch.
+2. Re-build the Docker image locally to ensure it builds and runs properly.
+3. Push the changes to GitHub. A new Docker image will be built and pushed to Docker Hub automatically. It will be tagged with the SHA for the commit that changed the file.
+4. Update the docker-compose.yml file on your branch to use the new container image (make sure to update the tag specifically).
+5. Send a pull request to merge the changes into the main branch.
+
 
 ## Project Structure
 
