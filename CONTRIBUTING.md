@@ -55,7 +55,7 @@ If you're new to the project:
 3. Start with issues labeled `good first issue` or `help wanted`
 4. Ask questions in issue discussions if you need clarification
 
-## Development Setup
+## Option A: Local Development Setup
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -91,6 +91,59 @@ If you're new to the project:
    pip install pre-commit
    pre-commit install
    ```
+### Option B: Using Docker 
+
+#### Prerequisites
+- Docker and Docker Compose installed
+- Git for version control
+- A GitHub account
+
+#### Setup
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/wine-quality-predictor.git
+cd wine-quality-predictor
+```
+
+2. Build the Docker image:
+```bash
+docker compose build
+```
+
+3. Run the analysis to verify setup:
+```bash
+docker compose run --rm analysis-env make all
+```
+
+## Adding a New Dependency
+
+### If Using Docker
+
+Follow these steps to add a new dependency to the Docker environment:
+
+1. Add the dependency to the `Dockerfile` file on a new branch.
+
+2. Re-build the Docker image locally to ensure it builds and runs properly:
+   ```bash
+   docker compose build
+   ```
+
+3. Push the changes to GitHub. A new Docker image will be built and pushed to Docker Hub automatically. It will be tagged with the SHA for the commit that changed the file.
+
+4. Update the `docker-compose.yml` file on your branch to use the new container image (make sure to update the tag specifically).
+
+5. Send a pull request to merge the changes into the `main` branch.
+
+## Running the Tests
+
+### Using Docker
+
+Tests are run using the `pytest` command:
+
+```bash
+docker compose run --rm analysis-env pytest
+```
+```
 
 ## Contribution Workflow
 
