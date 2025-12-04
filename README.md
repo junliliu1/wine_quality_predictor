@@ -24,6 +24,8 @@ To ensure reproducibility, this project uses **Conda** for environment managemen
 * seaborn 0.13
 * scikit-learn 1.3
 * Jupyter / JupyterLab 4.0
+* Quarto 1.4+
+* click 8.0+
 
 *Note: Lock files for different operating systems (macOS Intel, macOS ARM, Linux, Windows) are provided in `conda-lock.yml`.*
 
@@ -49,14 +51,39 @@ conda activate wine_quality_predictor
 
 ### Step 3: Run the Analysis
 
-1. Launch Jupyter Lab:
+The analysis is split into 6 modular Python scripts that should be run in sequence:
+
 ```bash
-jupyter lab
+# 1. Download/Extract Data
+python scripts/download_data.py \
+    --output-dir data/raw
+
+# 2. Clean/Transform Data
+python scripts/clean_data.py \
+    --red-wine data/raw/winequality-red.csv \
+    --white-wine data/raw/winequality-white.csv \
+    --output-path data/processed/wine_data_cleaned.csv
+
+# 3. Split and Pre-process Data
+
+# 4. Exploratory Data Analysis
+
+# 5. Model Fitting
+
+# 6. Model Evaluation
+
+# 7. Render the final report
+quarto render reports/wine_quality_predictor_report.qmd
 ```
 
-2. Open the analysis file: `wine_quality_predictor_report.ipynb`
+### Script Details
 
-3. Run all cells (Kernel > Restart & Run All) to reproduce the analysis and generate the visualizations.
+| Script | Description | Input | Output |
+|--------|-------------|-------|--------|
+| `download_data.py` | Download/Extract Data | UCI URLs | `data/raw/*.csv` |
+| `clean_data.py` | Clean/Transform Data | Raw CSVs | `data/processed/wine_data_cleaned.csv` |
+
+
 
 ## How to Run the Analysis in Jupyter Lab using Docker 
 
@@ -149,18 +176,7 @@ To shut down the container and clean up the resources, type `Ctrl` + `C` in the 
 ## Project Structure
 
 ```
-wine_quality_predictor/
-├── data/
-│   ├── winequality-red.csv       # Red wine dataset (1,599 samples)
-│   ├── winequality-white.csv     # White wine dataset (4,898 samples)
-│   └── winequality.names         # Dataset documentation
-├── wine_quality_predictor_report.ipynb # Main analysis notebook
-├── wine_quality_predictor_report.html # Main analysis report
-├── environment.yml               # Conda environment specification
-├── CODE_OF_CONDUCT.md           # Standards for community behavior
-├── CONTRIBUTING.md              # Guidelines for contributing
-├── LICENSE.md                   # Project licenses
-└── README.md                    # This file
+TODO
 ```
 
 ## Dataset
