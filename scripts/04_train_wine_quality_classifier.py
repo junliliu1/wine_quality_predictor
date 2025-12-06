@@ -1,7 +1,21 @@
 """
 
 This script trains a Random Forest classifier to predict wine quality
+from physicochemical properties.
+
+his script trains a Random Forest classifier to predict wine quality
 from physicochemical properties. 
+
+It performs the following steps:
+1. Loads processed wine data from a CSV file.
+2. Splits the data into features and target labels.
+3. Splits data into training and test sets.
+4. Trains a Random Forest classifier.
+5. Evaluates model performance (training accuracy, test accuracy, OOB score, cross-validation).
+6. Saves the trained model to a specified file path.
+
+Usage (from terminal):
+$ python train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model models/rf_wine_models.pkl
 
 """
 from pathlib import Path
