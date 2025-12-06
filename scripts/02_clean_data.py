@@ -9,7 +9,8 @@ from pathlib import Path
 
 import click
 import pandas as pd
-import pandera as pa
+#import pandera as pa
+import pandera.pandas as pa
 from pandera import Check, Column
 
 EXPECTED_COLUMNS = [
