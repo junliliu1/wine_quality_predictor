@@ -200,7 +200,7 @@ where you launched the container, and then type `docker compose rm`
 - Stopping it does NOT delete it. To remove it, run this: `docker rm <container_id>`
 
 ## Project Structure
-
+```
 wine_quality_predictor/
 │
 ├── data/
@@ -235,6 +235,7 @@ wine_quality_predictor/
 ├── docker-compose.yml
 ├── Dockerfile
 └── README.md
+```
 
 ## Dataset
 
