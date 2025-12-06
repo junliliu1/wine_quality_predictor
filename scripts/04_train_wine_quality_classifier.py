@@ -1,5 +1,9 @@
-# train_wine_quality_classifier.py
+"""
 
+This script trains a Random Forest classifier to predict wine quality
+from physicochemical properties. 
+
+"""
 from pathlib import Path
 import pickle
 
