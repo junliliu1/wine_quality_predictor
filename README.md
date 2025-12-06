@@ -206,32 +206,32 @@ wine_quality_predictor/
 ├── data/
 │   ├── raw/
 │   └── processed/
-|
+│
 ├── docs/
-|   └── index.html
-|
+│   └── index.html
+│
 ├── img/
-|
+│
 ├── reports/
-│   └── wine_quality_predictor_report.qmd
-|   └── wine_quality_predictor_report.html
-|   └── wine_quality_predictor_report.pdf
-|   └── references.bib
-|
+│   ├── wine_quality_predictor_report.qmd
+│   ├── wine_quality_predictor_report.html
+│   ├── wine_quality_predictor_report.pdf
+│   └── references.bib
+│
 ├── results/
-|   ├── models/
-|   ├── figures/
-|   ├── tables/
-|
+│   ├── models/
+│   ├── figures/
+│   └── tables/
 │
 ├── scripts/
 │   ├── 01_download_data.py
 │   ├── 02_clean_data.py
-|   ├── 03_eda.py
+│   ├── 03_eda.py
 │   ├── 04_train_wine_quality_classifier.py
 │   └── 05_evaluate_model.py
 │
 ├── environment.yml
+├── conda-lock.yml
 ├── docker-compose.yml
 ├── Dockerfile
 └── README.md
