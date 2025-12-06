@@ -67,6 +67,9 @@ python scripts/clean_data.py \
 # 3. Split and Pre-process Data
 
 # 4. Exploratory Data Analysis
+python scripts/03_eda.py \
+    --input-file data/processed/cleaned_wine.csv \
+    --output-dir results/eda
 
 # 5. Model Fitting
 
@@ -82,6 +85,7 @@ quarto render reports/wine_quality_predictor_report.qmd
 |--------|-------------|-------|--------|
 | `download_data.py` | Download/Extract Data | UCI URLs | `data/raw/*.csv` |
 | `clean_data.py` | Clean/Transform Data | Raw CSVs | `data/processed/wine_data_cleaned.csv` |
+| `03_eda.py` | Exploratory Data Analysis | `data/processed/cleaned_wine.csv` | `results/eda/*.png` (3 visualizations) |
 
 
 
