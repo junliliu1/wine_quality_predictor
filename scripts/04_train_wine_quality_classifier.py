@@ -15,7 +15,7 @@ It performs the following steps:
 6. Saves the trained model to a specified file path.
 
 Usage (from terminal):
-$ python train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model models/rf_wine_models.pkl
+$ python train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model results/models/rf_wine_models.pkl
 
 """
 from pathlib import Path
@@ -29,7 +29,7 @@ from sklearn.metrics import accuracy_score
 
 @click.command()
 @click.option( "--input-csv", type=click.Path(exists=True), required=True, help="Path to the processed wine data CSV")
-@click.option("--output-model", type=click.Path(), default="models/rf_wine_models.pkl", help="Path to save the trained model")
+@click.option("--output-model", type=click.Path(), default="results/models/rf_wine_models.pkl", help="Path to save the trained model")
 @click.option("--test-size", type=float, default=0.2, help="Proportion of data to use for testing")
 @click.option("--random-state", type=int, default=42, help="Random seed for reproducibility")
 def main(input_csv: str, output_model: str, test_size: float, random_state: int):

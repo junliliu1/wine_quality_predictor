@@ -56,8 +56,7 @@ cd wine_quality_predictor
 docker compose up
 ```
 
-2. In the terminal, look for a URL that starts with 
-`http://127.0.0.1:8888/lab` 
+2. In the terminal, look for a URL that starts with `http://127.0.0.1:8888/lab` 
 (for an example, see the highlighted text in the terminal below). 
 Copy and paste that URL into your browser.
 
