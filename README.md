@@ -6,8 +6,6 @@ This project predicts wine quality categories (Low, Medium, High) from physicoch
 
 ## Contributors
 
-The following authors contributed to this project:
-
 * **Junli Liu** ([@junliliu1](https://github.com/junliliu1))
 * **Luis Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
 * **Purity Jangaya** ([@PurityJ](https://github.com/Purityj))
@@ -15,7 +13,9 @@ The following authors contributed to this project:
 
 ## Dependencies
 
-To ensure reproducibility, this project uses **Conda** for environment management. The key dependencies are listed in `environment.yml`. Major libraries include:
+This project uses **Conda** for environment management. All the dependencies are listed in `environment.yml`.
+
+Key packages include:
 
 * Python 3.11
 * pandas 2.1
@@ -24,94 +24,143 @@ To ensure reproducibility, this project uses **Conda** for environment managemen
 * seaborn 0.13
 * scikit-learn 1.3
 * Jupyter / JupyterLab 4.0
+* Quarto 1.4+
+* click 8.0+
 
-*Note: Lock files for different operating systems (macOS Intel, macOS ARM, Linux, Windows) are provided in `conda-lock.yml`.*
+[Docker](https://www.docker.com/) is a key dependency. Find instructions on how to install and use it [here](https://www.docker.com/).
 
-## How to Run the Analysis in Jupyter Lab - without Docker
+*Note: Lock files for different operating systems (macOS Intel, macOS ARM, Linux, Windows) are provided in `conda-lock.yml`. All dependencies are installed inside the Docker container. You do not need Python or any libraries installed locally.*
+
+## Usage
 
 Follow these steps to set up the environment and run the analysis:
 
-### Step 1: Clone the Repository
+### Setup
+
+> If you are Windows or Mac, make sure Docker is running by clicking on the Docker app.
+
+### 1. Clone this repository
+
+Clone this repository and cd to the root of the repository using these commands: 
 
 ```bash
 git clone https://github.com/junliliu1/wine_quality_predictor.git
 cd wine_quality_predictor
 ```
 
-### Step 2: Environment Setup
+### 2. Run the Analysis
 
-Create the environment using the provided `environment.yml` file:
+1. Run the following command on the terminal(on your computer) to start docker container:
 
 ```bash
-conda env create -f environment.yml
-conda activate wine_quality_predictor
+docker compose up
 ```
 
-### Step 3: Run the Analysis
+2. In the terminal, look for a URL that starts with `http://127.0.0.1:8888/lab` 
+(for an example, see the highlighted text in the terminal below). 
+Copy and paste that URL into your browser.
 
-1. Launch Jupyter Lab:
+<img src="img/jupyter-container-web-app-launch-url.png" width=400>
+
+3. In JupyterLab, open a terminal by clicking File → New → Terminal in the top-left menu.
+
+4. To run the whole analysis run the following commands:
+
 ```bash
-jupyter lab
+python scripts/generate_figures.py --input-csv data/processed/wine_data_cleaned.csv \
+    --out_dir="results"
+
+quarto render reports/wine_quality_predictor_report.qmd --to html
+quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
 
-2. Open the analysis file: `wine_quality_predictor_report.ipynb`
+5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
 
-3. Run all cells (Kernel > Restart & Run All) to reproduce the analysis and generate the visualizations.
-
-## How to Run the Analysis in Jupyter Lab using Docker 
-
-[Docker](https://www.docker.com/) is a container solution used to manage the software dependencies for this project. The Docker image used for this project is based on the condaforge/miniforge3:latest image. Additional dependencies are specified in the [Dockerfile](Dockerfile)
-
-## Usage
-
-Follow the instructions below to reproduce the analysis using Docker.
-
-### Setup
-
-1. Installing Docker
-
-If you don't have Docker installed, download and install it from:
-- **Windows/Mac**: [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- **Linux**: Follow the [official installation guide](https://docs.docker.com/engine/install/)
-
-To verify Docker is installed correctly, run:
 ```bash
-docker --version
+# 1. Download/Extract Data
+python scripts/download_data.py \
+    --output-dir data/raw
+
+# 2. Clean/Transform Data
+python scripts/clean_data.py \
+    --red-wine data/raw/winequality-red.csv \
+    --white-wine data/raw/winequality-white.csv \
+    --output-path data/processed/wine_data_cleaned.csv
+
+# 3. Exploratory Data Analysis
+
+# 5. Model Fitting/Training
+python scripts/04_train_wine_quality_classifier.py \
+     --input-csv data/processed/wine_data_cleaned.csv \
+     --output-model models/rf_wine_models.pkl
+
+# 5. Model Evaluation
+
+# 6. Render the final report
+quarto render reports/wine_quality_predictor_report.qmd --to html
+quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
 
-2. Clone this GitHub repository and cd to the root of the repository:
- ```
- https://github.com/junliliu1/wine_quality_predictor.git
- cd wine_quality_predictor
- ```
+### Script Details
 
-### Running the Analysis
+| Script | Description | Input | Output |
+|--------|-------------|-------|--------|
+| `01_download_data.py` | Download/Extract raw wine quality datasets | UCI URLs | `data/raw/*.csv` |
+| `02_clean_data.py` | Clean, merge, and transform raw data | `data/raw/winequality-red.csv`, `data/raw/winequality-white.csv` | `data/processed/wine_data_cleaned.csv` |
+| `03_preprocess_data.py` | (Optional) Split into train/test, encode labels, scale features | `data/processed/wine_data_cleaned.csv` | `data/processed/train_test_data.pkl` |
+| `04_train_wine_quality_classifier.py` | Train Random Forest classifier | `data/processed/wine_data_cleaned.csv` | `models/rf_wine_models.pkl` |
+| `05_evaluate_model.py` | Evaluate model (metrics, confusion matrix, feature importance) | `models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/plots/*`, `results/metrics/*.json` |
+| `generate_figures.py` | Generate all figures for the final report | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
+| `reports/wine_quality_predictor_report.qmd` | Render final report | Processed data + generated figures | HTML + PDF files in `reports/` |
 
-The analysis can be run using either of these options depending on your preference. Run all these commands on a terminal from the root of the project.
+#### Clean up
 
+For instructions on shutting down and cleaning up Docker containers, see [Developer Notes → Running the Analysis – Developer Options → Clean Up](#running-the-analysis-developer-options).
 
-#### Option 1: Build the Docker image locally (recommended for active development)
+## Developer Notes
 
-```
-docker-compose up --build
+### Developer Dependencies
+
+- `conda` (version 23.9.0 or higher)
+- `conda-lock` (version 2.5.7 or higher)
+- `docker`
+
+### Adding a New Dependency
+
+1. Add the dependency to the `environment.yml` file on a new branch.
+
+2. Run `conda-lock lock --file environment.yml -p linux-64 -p osx-64 -p osx-arm64 -p win-64 -p linux-aarch64` to update the `conda-lock.yml` file.
+
+3. **Rebuild the Docker container** to include the new dependency. See [Running the Analysis – Developer Options](#running-the-analysis-developer-options) for instructions on building and running the Docker container.
+
+4. Push the changes to GitHub. A new Docker image will be built and pushed to Docker Hub automatically.  It will be tagged with the SHA for the commit that changed the file.
+
+5. Update the `docker-compose.yml` file on your branch to use the new container image (make sure to update the tag specifically).
+
+6. Send a pull request to merge the changes into the `main` branch.
+
+#### Clean up
+
+For instructions on shutting down and cleaning up Docker containers, see [Developer Notes → Running the Analysis – Developer Options → Clean Up](#running-the-analysis-developer-options).
+
+### Running the Analysis (Developer Options)
+
+After cloning the repository and cd to it on your local computer, the analysis can be run using either of these options depending on your workflow.
+
+#### Option 1: Build the Docker Image Locally (Recommended for Development)
+
+This is best option if you want to actively work on the project and potentially rebuild the environment.
+
+```bash
+docker compose up --build
 ```
 
 This will build the Docker image and start the container.
-Once the container is running, a link to access JupyterLab will be shown in the terminal. Look for a URL that starts with http://127.0.0.1:8888/lab?. Copy and paste that URL into your browser.
+Once the container is running, a link to access JupyterLab will be shown in the terminal. Look for a URL that starts with http://127.0.0.1:8888/lab. Copy and paste that URL into your browser.
 
 Changes made in notebook are reflected locally in cloned repo. Commit and push changes to github for others to access.
-This is best if you want to actively work on the project and potentially rebuild the environment.
 
-
-#### Clean Up
-
-To shut down the container and clean up the resources, type `Ctrl` + `C` in the terminal where you launched the container, and then type:
-
-```bash
-docker compose rm
-```
-
-#### Option 2: Pull a prebuilt image from DockerHub (faster, reproducible environment)
+#### Option 2: Pull a Prebuilt Image from DockerHub (Faster, Reproducible)
 
 1. Pull the image from Dockerhub
 
@@ -125,42 +174,66 @@ docker pull junli73889/wine-quality-predictor:latest
 docker run -it -p 8888:8888 -v $(pwd):/workplace junli73889/wine-quality-predictor:latest
 ```
 
-3. The container will start and provide a localhost URL. Look for a URL that starts with http://127.0.0.1:8888/lab?. Copy and paste that URL into your browser.
+3. The container will start and provide a localhost URL. Look for a URL that starts with http://127.0.0.1:8888/lab. Copy and paste that URL into your browser.
 
+*Note: In case of a docker container port conflict, e.g, if port 8888 is already in use, run docker on a different container as shown below:*
+
+```bash
+docker run -it -p 8889:8888 -v $(pwd):/workplace junli73889/wine-quality-predictor:latest
+```
+
+Alternatively, stop the container using port 8888:
+
+```bash
+docker ps          # to get the ID of the container using port 8888 as <container_id>
+docker stop <container_id>
+```
 
 #### Clean Up
 
-To shut down the container and clean up the resources, type `Ctrl` + `C` in the terminal where you launched the container, and then:
+To shut down the container and clean up the resources,  type `Cntrl` + `C` in the terminal
+where you launched the container, and then type `docker compose rm`
 
-- If it’s running in the background, then: `docker ps`
-- Find the container name or ID, then: : `docker stop <container_id>`
-- Stopping it does NOT delete it. To remove it: `docker rm <container_id>`
-
-
-## Adding a new dependency
-
-1. Add the dependency to the Dockerfile file on a new branch.
-2. Re-build the Docker image locally to ensure it builds and runs properly.
-3. Push the changes to GitHub. A new Docker image will be built and pushed to Docker Hub automatically. It will be tagged with the SHA for the commit that changed the file.
-4. Update the docker-compose.yml file on your branch to use the new container image (make sure to update the tag specifically).
-5. Send a pull request to merge the changes into the main branch.
-
+- If the container is running in the background, run this to list running containers: `docker ps`
+- Find the container name or ID, then run this to stop the container: : `docker stop <container_id>`
+- Stopping it does NOT delete it. To remove it, run this: `docker rm <container_id>`
 
 ## Project Structure
-
 ```
 wine_quality_predictor/
+│
 ├── data/
-│   ├── winequality-red.csv       # Red wine dataset (1,599 samples)
-│   ├── winequality-white.csv     # White wine dataset (4,898 samples)
-│   └── winequality.names         # Dataset documentation
-├── wine_quality_predictor_report.ipynb # Main analysis notebook
-├── wine_quality_predictor_report.html # Main analysis report
-├── environment.yml               # Conda environment specification
-├── CODE_OF_CONDUCT.md           # Standards for community behavior
-├── CONTRIBUTING.md              # Guidelines for contributing
-├── LICENSE.md                   # Project licenses
-└── README.md                    # This file
+│   ├── raw/
+│   └── processed/
+│
+├── docs/
+│   └── index.html
+│
+├── img/
+│
+├── reports/
+│   ├── wine_quality_predictor_report.qmd
+│   ├── wine_quality_predictor_report.html
+│   ├── wine_quality_predictor_report.pdf
+│   └── references.bib
+│
+├── results/
+│   ├── models/
+│   ├── figures/
+│   └── tables/
+│
+├── scripts/
+│   ├── 01_download_data.py
+│   ├── 02_clean_data.py
+│   ├── 03_eda.py
+│   ├── 04_train_wine_quality_classifier.py
+│   └── 05_evaluate_model.py
+│
+├── environment.yml
+├── conda-lock.yml
+├── docker-compose.yml
+├── Dockerfile
+└── README.md
 ```
 
 ## Dataset
