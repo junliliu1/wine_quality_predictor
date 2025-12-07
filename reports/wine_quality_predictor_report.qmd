@@ -456,234 +456,71 @@ These results indicate that the model fits the training data very well while mai
 # print(classification_report(y_test, y_pred_test, target_names=label_encoder.classes_))
 ```
 
-### 5. Random Forest Hyperparameter Optimization
+### 5. Baseline Random Forest: Confusion Matrix and Classification Report
 
-```{python}
-# Define parameter grid for Random Forest
-# print("Starting Random Forest Hyperparameter Tuning...")
-# print("This may take several minutes...\n")
+The following script is used to compute the confusion matrix and classification report on the test set:
 
-# param_grid = {
-#     'n_estimators': [100, 200, 300],
-#     'max_depth': [10, 20, 30, None],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4],
-#     'max_features': ['sqrt', 'log2', None]
-# }
-
-# Create GridSearchCV object
-# rf_grid = GridSearchCV(
-#     RandomForestClassifier(random_state=42, oob_score=True, n_jobs=-1),
-#     param_grid,
-#     cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
-#     scoring='accuracy',
-#     n_jobs=-1,
-#     verbose=1
-# )
-
-# Fit GridSearchCV
-# rf_grid.fit(X_train, y_train)
-
-# print(f"\nBest parameters found:")
-# for param, value in rf_grid.best_params_.items():
-#     print(f"  {param}: {value}")
-
-# print(f"\nBest cross-validation score: {rf_grid.best_score_:.4f}")
+```bash
+python scripts/05_evaluate_using_confusion_matrix.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --model-path results/models/rf_wine_models.pkl \
+  --output-dir results/evaluation
 ```
 
 ```{python}
-# Evaluate optimized Random Forest
-# rf_optimized = rf_grid.best_estimator_
-# y_pred_optimized = rf_optimized.predict(X_test)
+from IPython.display import Image, display
 
-# # Calculate metrics
-# accuracy_optimized = accuracy_score(y_test, y_pred_optimized)
-# precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred_optimized, average='weighted')
-
-# print("Optimized Random Forest Performance:")
-# print(f"Test Accuracy: {accuracy_optimized:.4f}")
-# print(f"Precision: {precision:.4f}")
-# print(f"Recall: {recall:.4f}")
-# print(f"F1-Score: {f1:.4f}")
-# print(f"\nImprovement over initial model: {(accuracy_optimized - test_accuracy)*100:.2f}%")
-
-# # Confusion matrix for optimized model
-# cm_optimized = confusion_matrix(y_test, y_pred_optimized)
-# plt.figure(figsize=(8, 6))
-# sns.heatmap(cm_optimized, annot=True, fmt='d', cmap='Greens',
-#             xticklabels=label_encoder.classes_,
-#             yticklabels=label_encoder.classes_)
-# plt.title('Random Forest Confusion Matrix (Optimized Model)', fontsize=14, fontweight='bold')
-# plt.xlabel('Predicted')
-# plt.ylabel('Actual')
-# plt.tight_layout()
-# plt.show()
-
-# print("\nFigure 6. Confusion matrix for the optimized Random Forest model after hyperparameter tuning.")
+display(Image("results/evaluation/confusion_matrix_random_forest_initial.png"))
 ```
 
-### 6. Model Comparison - Validating Random Forest Choice
+Figure 1. Confusion matrix for the baseline Random Forest model, showing
+classification performance across the quality categories.
 
 ```{python}
-# Compare Random Forest with other models
-# print("Comparing Random Forest with other classifiers...\n")
-
-# models = {
-#     'Random Forest (Optimized)': rf_optimized,
-#     'Random Forest (Initial)': rf_model,
-#     'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
-#     'Gradient Boosting': GradientBoostingClassifier(n_estimators=100, random_state=42),
-#     'SVM': SVC(kernel='rbf', random_state=42, probability=True)
-# }
-
-# results = {}
-# for name, model in models.items():
-#     if 'Random Forest' not in name:  # Skip RF models as they're already trained
-#         model.fit(X_train, y_train)
-    
-#     y_pred = model.predict(X_test)
-#     accuracy = accuracy_score(y_test, y_pred)
-#     precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
-    
-#     results[name] = {
-#         'Accuracy': accuracy,
-#         'Precision': precision,
-#         'Recall': recall,
-#         'F1-Score': f1
-#     }
-    
-#     print(f"{name}:")
-#     print(f"  Accuracy: {accuracy:.4f}")
-#     print(f"  F1-Score: {f1:.4f}\n")
+with open("results/evaluation/classification_report_random_forest_initial.txt") as f:
+    print(f.read())
 ```
+
+Table 1. Classification report (precision, recall, F1-score, support)
+for the baseline Random Forest model.
+
+### 6. Hyperparameter Tuning and Optimized Random Forest
+
+To improve on the baseline Random Forest model, we perform hyperparameter
+tuning using `GridSearchCV`. The tuning script
+
+```bash
+python scripts/07_tune_random_forest_hyperparameters.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --output-model results/models/rf_wine_model_optimized.pkl \
+  --output-dir results/evaluation
+```
+
+- 6.1 Best Hyperparameters and Cross-Validation Performance
 
 ```{python}
-# Visualize model comparison
-# results_df = pd.DataFrame(results).T
-
-# fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-
-# # Bar plot comparison
-# results_df.plot(kind='bar', ax=axes[0], width=0.8)
-# axes[0].set_title('Model Performance Comparison', fontsize=14, fontweight='bold')
-# axes[0].set_xlabel('Model')
-# axes[0].set_ylabel('Score')
-# axes[0].legend(loc='lower right')
-# axes[0].set_xticklabels(axes[0].get_xticklabels(), rotation=45, ha='right')
-# axes[0].grid(True, alpha=0.3)
-# axes[0].set_ylim([0.5, 1.0])
-
-# # Radar chart for Random Forest models
-# categories = list(results_df.columns)
-# rf_scores = results_df.loc['Random Forest (Optimized)'].values
-# rf_init_scores = results_df.loc['Random Forest (Initial)'].values
-
-# angles = np.linspace(0, 2*np.pi, len(categories), endpoint=False)
-# angles = np.concatenate((angles, [angles[0]]))
-# rf_scores = np.concatenate((rf_scores, [rf_scores[0]]))
-# rf_init_scores = np.concatenate((rf_init_scores, [rf_init_scores[0]]))
-
-# ax = plt.subplot(122, projection='polar')
-# ax.plot(angles, rf_scores, 'o-', linewidth=2, label='RF Optimized', color='green')
-# ax.fill(angles, rf_scores, alpha=0.25, color='green')
-# ax.plot(angles, rf_init_scores, 'o-', linewidth=2, label='RF Initial', color='blue')
-# ax.fill(angles, rf_init_scores, alpha=0.25, color='blue')
-# ax.set_xticks(angles[:-1])
-# ax.set_xticklabels(categories)
-# ax.set_ylim([0.5, 1.0])
-# ax.set_title('Random Forest Performance Metrics', fontsize=14, fontweight='bold', y=1.08)
-# ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-# ax.grid(True)
-
-# plt.tight_layout()
-# plt.show()
-
-# print("Figure 7. Model performance comparison: (a) bar chart comparing all classifiers across metrics, (b) radar chart showing Random Forest performance profile.")
-# print("\nTable 3. Performance Summary:")
-# print(results_df.round(4).to_string())
+with open("results/evaluation/rf_hyperparameter_tuning_results.txt") as f:
+print(f.read())
 ```
 
-### 7. Random Forest Deep Dive - Tree Visualization and Analysis
+Table 2. Summary of Random Forest hyperparameter tuning, including the
+best hyperparameter combination and its cross-validation accuracy.
+
+- 6.2 Confusion Matrix for the Optimized Model
 
 ```{python}
-# Analyze the effect of number of trees
-# n_trees_range = range(10, 301, 10)
-# oob_scores = []
-# test_scores = []
-
-# print("Analyzing impact of forest size...")
-# for n_trees in n_trees_range:
-#     rf_temp = RandomForestClassifier(
-#         n_estimators=n_trees,
-#         **{k: v for k, v in rf_grid.best_params_.items() if k != 'n_estimators'},
-#         random_state=42,
-#         oob_score=True,
-#         n_jobs=-1
-#     )
-#     rf_temp.fit(X_train, y_train)
-#     oob_scores.append(rf_temp.oob_score_)
-#     test_scores.append(rf_temp.score(X_test, y_test))
-
-# plt.figure(figsize=(10, 6))
-# plt.plot(n_trees_range, oob_scores, label='OOB Score', linewidth=2)
-# plt.plot(n_trees_range, test_scores, label='Test Score', linewidth=2)
-# plt.xlabel('Number of Trees', fontsize=12)
-# plt.ylabel('Accuracy', fontsize=12)
-# plt.title('Random Forest Performance vs. Number of Trees', fontsize=14, fontweight='bold')
-# plt.legend(loc='lower right')
-# plt.grid(True, alpha=0.3)
-# plt.tight_layout()
-# plt.show()
-
-# print(f"\nFigure 8. Effect of forest size on model performance showing OOB score and test accuracy as number of trees increases.")
-# print(f"\nOptimal number of trees (based on test score): {n_trees_range[np.argmax(test_scores)]}")
-# print(f"Maximum test accuracy achieved: {max(test_scores):.4f}")
+from IPython.display import Image, display
+display(Image("results/evaluation/confusion_matrix_random_forest_optimized.png"))
 ```
 
-```{python}
-# Feature importance stability across multiple runs
-# n_runs = 10
-# importance_matrix = np.zeros((n_runs, len(X.columns)))
+Figure 3. Confusion matrix for the optimized Random Forest model after
+hyperparameter tuning.
 
-# print("Analyzing feature importance stability...")
-# for i in range(n_runs):
-#     rf_temp = RandomForestClassifier(
-#         **rf_grid.best_params_,
-#         random_state=i,
-#         oob_score=True,
-#         n_jobs=-1
-#     )
-#     rf_temp.fit(X_train, y_train)
-#     importance_matrix[i] = rf_temp.feature_importances_
-
-# # Calculate mean and std of feature importances
-# importance_mean = importance_matrix.mean(axis=0)
-# importance_std = importance_matrix.std(axis=0)
-
-# # Create dataframe for visualization
-# importance_stability = pd.DataFrame({
-#     'feature': X.columns,
-#     'mean_importance': importance_mean,
-#     'std_importance': importance_std
-# }).sort_values('mean_importance', ascending=False)
-
-# plt.figure(figsize=(10, 8))
-# plt.barh(range(len(importance_stability)), importance_stability['mean_importance'], 
-#          xerr=importance_stability['std_importance'], color='forestgreen', alpha=0.7)
-# plt.yticks(range(len(importance_stability)), importance_stability['feature'])
-# plt.xlabel('Feature Importance (Mean ± Std)', fontsize=12)
-# plt.title('Random Forest Feature Importance Stability Analysis', fontsize=14, fontweight='bold')
-# plt.gca().invert_yaxis()
-# plt.grid(True, alpha=0.3)
-# plt.tight_layout()
-# plt.show()
-
-# print("\nFigure 9. Feature importance stability analysis across 10 random forest runs showing mean importance with standard deviation error bars.")
-# print("\nTable 4. Feature Importance Stability (Top 5):")
-# print(importance_stability.head().to_string(index=False))
-```
-
-## Results & Discussion
+Compared to the baseline model in Figure 1, this confusion matrix shows
+how the tuned model redistributes errors across the quality categories
+and whether overall test performance improves. This allows us to assess
+whether the additional model complexity from tuning leads to meaningful
+gains in predictive accuracy.
 
 ```{python}
 # Final Results Summary
