@@ -130,7 +130,6 @@ quarto render reports/wine_quality_predictor_report.qmd --to pdf
 | `05_evaluate_using_confusion_matrix.py` | Evaluate the baseline Random Forest using a confusion matrix and classification report on the test set. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/confusion_matrix_random_forest_initial.png`, `results/evaluation/classification_report_random_forest_initial.txt` |
 | `06_evaluate_using_feature_importance.py` | Analyze and visualize Random Forest feature importances. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/feature_importance_random_forest.png`, `results/evaluation/feature_importance_table.csv` |
 | `07_tune_random_forest_hyperparameters.py` | Hyperparameter tuning for Random Forest via `GridSearchCV`, plus evaluation of the optimized model. | `data/processed/wine_data_cleaned.csv` | `results/models/rf_wine_model_optimized.pkl`, `results/evaluation/confusion_matrix_random_forest_optimized.png`, `results/evaluation/rf_hyperparameter_tuning_results.txt` |
-| `generate_figures.py` | Generate all figures for the final report | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `reports/wine_quality_predictor_report.qmd` | Render final report | Processed data + generated figures | HTML + PDF files in `reports/` |
 
 #### Clean up
@@ -248,7 +247,9 @@ wine_quality_predictor/
 │   ├── 02_clean_data.py
 │   ├── 03_eda.py
 │   ├── 04_train_wine_quality_classifier.py
-│   └── 05_evaluate_model.py
+│   └── 05_evaluate_using_confusion_matrix.py
+│   ├── 06_evaluate_using_feature_importance.py
+│   └── 07_tune_random_forest_hyperparameters.py
 │
 ├── environment.yml
 ├── conda-lock.yml
