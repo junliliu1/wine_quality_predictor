@@ -434,7 +434,7 @@ Figure&nbsp;3: Correlation heatmap showing relationships between all physicochem
 Table&nbsp;2: Summary of Data Split
 </figcaption>
 <div aria-describedby="tbl-summary_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="132">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
@@ -469,12 +469,18 @@ Table&nbsp;2: Summary of Data Split
 </figure>
 </div>
 </div>
-<div id="3892b7c7" class="cell" data-execution_count="21">
-<div class="cell-output cell-output-display" data-execution_count="133">
+<div class="cell" data-execution_count="21">
+<div id="tbl-train_dist_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="21">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Training set class distribution table
+</figcaption>
+<div aria-describedby="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -508,6 +514,57 @@ Table&nbsp;2: Summary of Data Split
 </div>
 </div>
 </div>
+</figure>
+</div>
+</div>
+<div class="cell" data-execution_count="22">
+<div id="tbl-test_dist_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="22">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Test set class distribution table
+</figcaption>
+<div aria-describedby="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="22">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Quality Category</th>
+<th data-quarto-table-cell-role="th">Samples</th>
+<th data-quarto-table-cell-role="th">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>High (8-9)</td>
+<td>31</td>
+<td>2.9</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Low (3-5)</td>
+<td>397</td>
+<td>37.3</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Medium (6-7)</td>
+<td>636</td>
+<td>59.8</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 <p>This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.</p>
 </section>
 <section id="random-forest-model-development" class="level3">
@@ -519,12 +576,18 @@ Table&nbsp;2: Summary of Data Split
 <li><p>Out-of-Bag (OOB) Score: An internal validation method for Random Forests, giving an unbiased estimate of model performance.</p></li>
 <li><p>Cross-Validation Accuracy: Performance measured by repeatedly splitting the training set into subsets to validate the model, ensuring stability of results.</p></li>
 </ul>
-<div id="63e69f5b" class="cell" data-execution_count="24">
-<div class="cell-output cell-output-display" data-execution_count="136">
+<div class="cell" data-execution_count="24">
+<div id="tbl-rf_perf_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="24">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Random Forest performance table
+</figcaption>
+<div aria-describedby="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -557,6 +620,9 @@ Table&nbsp;2: Summary of Data Split
 </table>
 
 </div>
+</div>
+</div>
+</figure>
 </div>
 </div>
 <p>These results indicate that the model fits the training data very well while maintaining good predictive performance on unseen data. This demonstrates that the Random Forest classifier is effective in predicting wine quality based on physicochemical properties.</p>
