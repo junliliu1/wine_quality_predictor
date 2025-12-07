@@ -147,7 +147,7 @@ def main(
 
     # 7. Classification report
     report = classification_report(
-        y_test, y_pred_test, target_names=[str(c) for c in class_names]
+        y_test, y_pred_test
     )
     print("\nClassification Report:")
     print(report)

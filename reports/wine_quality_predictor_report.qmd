@@ -8,7 +8,7 @@ format:
   html:
     toc: true
     toc-depth: 4
-    output-file: index.html
+    #output-file: index.html
   pdf:
     toc: true
     toc-depth: 4
@@ -768,8 +768,6 @@ test_percentages = [float(x) for x in test_percentages]
 This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.
 
 ### 4. Random Forest Model Development
-
-Random Forest Model Development
 
 A Random Forest classifier, consisting of 100 decision trees, was trained on the processed data to predict wine quality. The model’s performance was evaluated using several metrics:
 
