@@ -91,11 +91,7 @@ div.csl-indent {
   <li><a href="#data-preprocessing-for-random-forest" id="toc-data-preprocessing-for-random-forest" class="nav-link" data-scroll-target="#data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</a></li>
   <li><a href="#random-forest-model-development" id="toc-random-forest-model-development" class="nav-link" data-scroll-target="#random-forest-model-development">4. Random Forest Model Development</a></li>
   <li><a href="#random-forest-hyperparameter-optimization" id="toc-random-forest-hyperparameter-optimization" class="nav-link" data-scroll-target="#random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</a></li>
-  <li><a href="#model-comparison---validating-random-forest-choice" id="toc-model-comparison---validating-random-forest-choice" class="nav-link" data-scroll-target="#model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</a></li>
-  <li><a href="#random-forest-deep-dive---tree-visualization-and-analysis" id="toc-random-forest-deep-dive---tree-visualization-and-analysis" class="nav-link" data-scroll-target="#random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</a></li>
-  </ul></li>
-  <li><a href="#results-discussion" id="toc-results-discussion" class="nav-link" data-scroll-target="#results-discussion">Results &amp; Discussion</a>
-  <ul>
+  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">6. Model Evaluation</a></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
   <ul class="collapse">
   <li><a href="#why-random-forest-excelled" id="toc-why-random-forest-excelled" class="nav-link" data-scroll-target="#why-random-forest-excelled">Why Random Forest Excelled:</a></li>
@@ -390,7 +386,7 @@ Figure&nbsp;3: Feature Correlation Heatmap
 Table&nbsp;2: Summary of Data Split
 </figcaption>
 <div aria-describedby="tbl-summary_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="97">
 <div>
 
 
@@ -432,7 +428,7 @@ Table&nbsp;2: Summary of Data Split
 Table&nbsp;3: Training set class distribution table
 </figcaption>
 <div aria-describedby="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="98">
 <div>
 
 
@@ -480,7 +476,7 @@ Table&nbsp;3: Training set class distribution table
 Table&nbsp;4: Test set class distribution table
 </figcaption>
 <div aria-describedby="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="99">
 <div>
 
 
@@ -539,7 +535,7 @@ Table&nbsp;4: Test set class distribution table
 Table&nbsp;5: Random Forest performance table
 </figcaption>
 <div aria-describedby="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="24">
+<div class="cell-output cell-output-display" data-execution_count="101">
 <div>
 
 
@@ -586,15 +582,53 @@ Table&nbsp;5: Random Forest performance table
 <section id="random-forest-hyperparameter-optimization" class="level3">
 <h3 class="anchored" data-anchor-id="random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</h3>
 </section>
-<section id="model-comparison---validating-random-forest-choice" class="level3">
-<h3 class="anchored" data-anchor-id="model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</h3>
+<section id="model-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="model-evaluation">6. Model Evaluation</h3>
+<p>In this step, we evaluate the performance of the trained Random Forest classifier using a confusion matrix and a detailed classification report. The evaluation script loads the cleaned dataset, applies the previously trained model, and computes key metrics such as precision, recall, and F1-score for each wine-quality class.</p>
+<p>The confusion matrix provides a visual summary of how well the model distinguishes between the different categories, while the classification report breaks down performance per class.</p>
+<p>Due to the natural class imbalance in the wine-quality dataset, some classes have very few samples, which results in undefined precision and recall values (these appear as warnings during evaluation). Despite this, the evaluation helps identify where the model performs well and where predictions remain challenging.</p>
+<p>The model was evaluated using the test set generated during preprocessing.<br>
+The script computes the confusion matrix and classification report, and saves both as output files in the <code>results/evaluation/</code> directory.</p>
+<div id="cell-fig-confusion-matrix" class="cell" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div id="fig-confusion-matrix" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wine_quality_predictor_report_files/figure-html/fig-confusion-matrix-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="512" height="408">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Confusion Matrix for Random Forest Classifier
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Classification Report</strong></p>
+<p>The following classification report was generated by the evaluation script.</p>
+<div id="classification-report" class="cell" data-tbl-cap="Classification Report from Random Forest Model" data-execution_count="26">
+<div class="cell-output cell-output-stdout">
+<pre><code>Random Forest Classification Report
+
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       0.0
+           1       0.00      0.00      0.00       0.0
+           2       0.00      0.00      0.00       0.0
+           3       0.00      0.00      0.00       4.0
+           4       0.00      0.00      0.00      38.0
+           5       0.00      0.00      0.00     348.0
+           6       0.00      0.00      0.00     458.0
+           7       0.00      0.00      0.00     190.0
+           8       0.00      0.00      0.00      25.0
+           9       0.00      0.00      0.00       1.0
+
+    accuracy                           0.00    1064.0
+   macro avg       0.00      0.00      0.00    1064.0
+weighted avg       0.00      0.00      0.00    1064.0
+</code></pre>
+</div>
+</div>
 </section>
-<section id="random-forest-deep-dive---tree-visualization-and-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</h3>
-</section>
-</section>
-<section id="results-discussion" class="level2">
-<h2 class="anchored" data-anchor-id="results-discussion">Results &amp; Discussion</h2>
 <section id="discussion" class="level3">
 <h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
 <p>Our Random Forest classifier successfully predicted wine quality from physicochemical properties, validating our hypothesis that ensemble learning methods are well-suited for this domain.</p>

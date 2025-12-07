@@ -1,0 +1,27 @@
+\contentsline {subsection}{\nonumberline Summary}{2}{subsection*.3}%
+\contentsline {subsection}{\nonumberline Introduction}{2}{subsection*.5}%
+\contentsline {subsubsection}{\nonumberline Why Random Forest?}{2}{subsubsection*.7}%
+\contentsline {subsubsection}{\nonumberline Research Questions}{2}{subsubsection*.9}%
+\contentsline {subsection}{\nonumberline Methods}{3}{subsection*.11}%
+\contentsline {subsubsection}{\nonumberline Why Random Forest?}{3}{subsubsection*.13}%
+\contentsline {subsubsection}{\nonumberline Research Questions}{3}{subsubsection*.15}%
+\contentsline {subsection}{\nonumberline Methods}{3}{subsection*.17}%
+\contentsline {subsubsection}{\nonumberline Data}{3}{subsubsection*.19}%
+\contentsline {subsubsection}{\nonumberline Data}{4}{subsubsection*.21}%
+\contentsline {subsubsection}{\nonumberline Analysis Pipeline}{4}{subsubsection*.23}%
+\contentsline {subsection}{\nonumberline Implementation}{5}{subsection*.25}%
+\contentsline {subsubsection}{\nonumberline 1. Data Loading and Preparation}{5}{subsubsection*.27}%
+\contentsline {subsubsection}{\nonumberline 1.1 Data Validation}{5}{subsubsection*.29}%
+\contentsline {subsubsection}{\nonumberline 2. Exploratory Data Analysis}{6}{subsubsection*.31}%
+\contentsline {subsubsection}{\nonumberline 3. Data Preprocessing for Random Forest}{7}{subsubsection*.36}%
+\contentsline {subsubsection}{\nonumberline 4. Random Forest Model Development}{10}{subsubsection*.38}%
+\contentsline {subsubsection}{\nonumberline 5. Random Forest Hyperparameter Optimization}{11}{subsubsection*.40}%
+\contentsline {subsubsection}{\nonumberline 6. Model Evaluation}{11}{subsubsection*.42}%
+\contentsline {subsubsection}{\nonumberline Discussion}{12}{subsubsection*.46}%
+\contentsline {paragraph}{\nonumberline Why Random Forest Excelled:}{12}{paragraph*.48}%
+\contentsline {paragraph}{\nonumberline Key Findings:}{13}{paragraph*.50}%
+\contentsline {paragraph}{\nonumberline Practical Applications:}{13}{paragraph*.52}%
+\contentsline {paragraph}{\nonumberline Limitations and Future Work:}{13}{paragraph*.54}%
+\contentsline {subsection}{\nonumberline Conclusion}{13}{subsection*.56}%
+\contentsline {subsection}{\nonumberline References}{14}{subsection*.58}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
