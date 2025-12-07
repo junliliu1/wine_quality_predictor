@@ -64,36 +64,30 @@ Copy and paste that URL into your browser.
 
 3. In JupyterLab, open a terminal by clicking File → New → Terminal in the top-left menu.
 
-4. To run the whole analysis run the following commands:
+4. To run the full analysis pipeline, execute the following command:
 
 ```bash
-python scripts/generate_figures.py --input-csv data/processed/wine_data_cleaned.csv \
-    --out_dir="results"
-
-quarto render reports/wine_quality_predictor_report.qmd --to html
-quarto render reports/wine_quality_predictor_report.qmd --to pdf
-
-# to render into docs folder - for Github Pages
-quarto render reports/wine_quality_predictor_report.qmd  --to html  --output-dir ../docs
+python scripts/run_all_scripts.py
 ```
+
+This script runs all processing, modeling, and evaluation steps and automatically generates both the HTML and PDF versions of the final report. You can find the generated files in the results/ folder.
+To view the report, copy the path to either the HTML or PDF file and open it in your browser.
 
 5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
 
 ```bash
 # 1. Download/Extract Data
-python scripts/download_data.py \
+python scripts/01_download_data.py \
     --output-dir data/raw
 
 # 2. Clean/Transform Data
-python scripts/clean_data.py \
+python scripts/02_clean_data.py \
     --red-wine data/raw/winequality-red.csv \
     --white-wine data/raw/winequality-white.csv \
     --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
-python scripts/03_eda_wine_quality.py \
-    --input-csv data/processed/wine_data_cleaned.csv \
-    --output-dir results/figures
+python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/figures
 
 # 4. Model Fitting/Training
 python scripts/04_train_wine_quality_classifier.py \
@@ -118,6 +112,9 @@ python scripts/07_tune_random_forest_hyperparameters.py \
 quarto render reports/wine_quality_predictor_report.qmd --to html
 quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
+
+You can find the generated files in the results/ folder.
+To view the report, copy the path to either the HTML or PDF file and open it in your browser.
 
 ### Script Details
 
