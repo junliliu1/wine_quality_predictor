@@ -7,7 +7,7 @@ This project predicts wine quality categories (Low, Medium, High) from physicoch
 ## Contributors
 
 * **Junli Liu** ([@junliliu1](https://github.com/junliliu1))
-* **Luis Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
+* **Luis Alonso Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
 * **Purity Jangaya** ([@PurityJ](https://github.com/Purityj))
 * **Jimmy Wang** ([@jimmy2026-V](https://github.com/jimmy2026-V))
 
@@ -91,8 +91,11 @@ python scripts/clean_data.py \
     --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
+python scripts/03_eda_wine_quality.py \
+    --input-csv data/processed/wine_data_cleaned.csv \
+    --output-dir results/figures
 
-# 5. Model Fitting/Training
+# 4. Model Fitting/Training
 python scripts/04_train_wine_quality_classifier.py \
      --input-csv data/processed/wine_data_cleaned.csv \
      --output-model models/rf_wine_models.pkl
@@ -110,7 +113,7 @@ quarto render reports/wine_quality_predictor_report.qmd --to pdf
 |--------|-------------|-------|--------|
 | `01_download_data.py` | Download/Extract raw wine quality datasets | UCI URLs | `data/raw/*.csv` |
 | `02_clean_data.py` | Clean, merge, and transform raw data | `data/raw/winequality-red.csv`, `data/raw/winequality-white.csv` | `data/processed/wine_data_cleaned.csv` |
-| `03_preprocess_data.py` | (Optional) Split into train/test, encode labels, scale features | `data/processed/wine_data_cleaned.csv` | `data/processed/train_test_data.pkl` |
+| `03_eda.py` | Exploratory Data Analysis - generate visualizations | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `04_train_wine_quality_classifier.py` | Train Random Forest classifier | `data/processed/wine_data_cleaned.csv` | `models/rf_wine_models.pkl` |
 | `05_evaluate_model.py` | Evaluate model (metrics, confusion matrix, feature importance) | `models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/plots/*`, `results/metrics/*.json` |
 | `generate_figures.py` | Generate all figures for the final report | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
