@@ -351,9 +351,10 @@ summary_df
 ```
 
 ```{python}
-import pandas as pd
 #| label: tbl-train_dist_df
 #| tbl-cap: Training set class distribution table
+
+import pandas as pd
 
 train_dist_df = pd.DataFrame({
 "Quality Category": classes,
@@ -366,10 +367,10 @@ train_dist_df
 
 
 ```{python}
-import pandas as pd
-
 #| label: tbl-test_dist_df
 #| tbl-cap: Test set class distribution table
+
+import pandas as pd
 
 test_dist_df = pd.DataFrame({
 "Quality Category": classes,
@@ -396,7 +397,7 @@ A Random Forest classifier, consisting of 100 decision trees, was trained on the
 - Cross-Validation Accuracy: Performance measured by repeatedly splitting the training set into subsets to validate the model, ensuring stability of results.
 
 ```{python}
-# Hidden chunk: train Random Forest and store metrics
+# rain Random Forest and store metrics
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -426,12 +427,10 @@ cv_std = float(cv_scores.std() * 2 ) # 95% CI approximation
 
 
 ```{python}
-import pandas as pd
-
 #| label: tbl-rf_perf_df
 #| tbl-cap: Random Forest performance table
 
-# 
+import pandas as pd
 
 rf_perf_df = pd.DataFrame({
 "Metric": [
