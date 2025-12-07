@@ -332,31 +332,53 @@ train_percentages = [float(x) for x in train_percentages]
 test_percentages = [float(x) for x in test_percentages]
 
 ```
-**Summary of Data Split**
-
-| Dataset       | Samples | Features |
-|---------------|--------|----------|
-| Training Set  | `{python} train_samples` | `{python} n_features` |
-| Test Set      | `{python} test_samples`  | `{python} n_features` |
 
 
+```{python}
+#| label: tbl-summary_df
+#| tbl-cap: Summary of Data Split
 
-**Class Distribution – Training Set**
+import pandas as pd
 
-| Quality Category | Samples | Percentage |
-|-----------------|--------|-----------|
-| `{python} classes[0]` | `{python} train_counts[0]` | `{python} train_percentages[0]`% |
-| `{python} classes[1]` | `{python} train_counts[1]` | `{python} train_percentages[1]`% |
-| `{python} classes[2]` | `{python} train_counts[2]` | `{python} train_percentages[2]`% |
+# Summary table
+summary_df = pd.DataFrame({
+    "Dataset": ["Training Set", "Test Set"],
+    "Samples": [train_samples, test_samples],
+    "Features": [n_features, n_features]
+})
+
+summary_df
+```
+
+```{python}
+import pandas as pd
+#| label: tbl-train_dist_df
+#| tbl-cap: Training set class distribution table
+
+train_dist_df = pd.DataFrame({
+"Quality Category": classes,
+"Samples": train_counts,
+"Percentage": train_percentages
+})
+
+train_dist_df
+```
 
 
-**Class Distribution – Test Set**
+```{python}
+import pandas as pd
 
-| Quality Category | Samples | Percentage |
-|-----------------|--------|-----------|
-| `{python} classes[0]` | `{python} test_counts[0]` | `{python} test_percentages[0]`% |
-| `{python} classes[1]` | `{python} test_counts[1]` | `{python} test_percentages[1]`% |
-| `{python} classes[2]` | `{python} test_counts[2]` | `{python} test_percentages[2]`% |
+#| label: tbl-test_dist_df
+#| tbl-cap: Test set class distribution table
+
+test_dist_df = pd.DataFrame({
+"Quality Category": classes,
+"Samples": test_counts,
+"Percentage": test_percentages
+})
+
+test_dist_df
+```
 
 
 This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.
@@ -402,58 +424,43 @@ cv_std = float(cv_scores.std() * 2 ) # 95% CI approximation
 
 ```
 
-**Table for Random Forest Performance**
 
-| Metric                    | Value                                        |
-| ------------------------- | -------------------------------------------- |
-| Training Accuracy         | `{python} round(train_accuracy, 4)`                 |
-| Test Accuracy             | `{python} round(test_accuracy, 4)`                  |
-| Out-of-Bag (OOB) Score    | `{python} round(oob_score, 4)`                      |
-| Cross-Validation Accuracy | `{python} round(cv_mean, 4)` ± `{python} round(cv_std, 4)` |
+```{python}
+import pandas as pd
+
+#| label: tbl-rf_perf_df
+#| tbl-cap: Random Forest performance table
+
+# 
+
+rf_perf_df = pd.DataFrame({
+"Metric": [
+"Training Accuracy",
+"Test Accuracy",
+"Out-of-Bag (OOB) Score",
+"Cross-Validation Accuracy"
+],
+"Value": [
+round(train_accuracy, 4),
+round(test_accuracy, 4),
+round(oob_score, 4),
+f"{round(cv_mean, 4)} ± {round(cv_std, 4)}"
+]
+})
+
+rf_perf_df
+
+```
 
 
 These results indicate that the model fits the training data very well while maintaining good predictive performance on unseen data. This demonstrates that the Random Forest classifier is effective in predicting wine quality based on physicochemical properties.
 
 ```{python}
-# Feature Importance Analysis - Key advantage of Random Forest
-# feature_importance = pd.DataFrame({
-#     'feature': X.columns,
-#     'importance': rf_model.feature_importances_
-# }).sort_values('importance', ascending=False)
 
-# plt.figure(figsize=(10, 8))
-# colors = plt.cm.viridis(feature_importance['importance'] / feature_importance['importance'].max())
-# plt.barh(range(len(feature_importance)), feature_importance['importance'], color=colors)
-# plt.yticks(range(len(feature_importance)), feature_importance['feature'])
-# plt.xlabel('Feature Importance', fontsize=12)
-# plt.title('Random Forest Feature Importance Analysis', fontsize=14, fontweight='bold')
-# plt.gca().invert_yaxis()
-# plt.grid(True, alpha=0.3)
-# plt.tight_layout()
-# plt.show()
-
-# print("Figure 4. Random Forest feature importance ranking showing the relative contribution of each physicochemical property to wine quality prediction.")
-# print("\nTable 1. Top 5 Most Important Features:")
-# print(feature_importance.head().to_string(index=False))
-# print(f"\nCumulative importance of top 5 features: {feature_importance.head()['importance'].sum():.3f}")
 ```
 
 ```{python}
-# Confusion Matrix for initial Random Forest
-# cm = confusion_matrix(y_test, y_pred_test)
-# plt.figure(figsize=(8, 6))
-# sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-#             xticklabels=label_encoder.classes_,
-#             yticklabels=label_encoder.classes_)
-# plt.title('Random Forest Confusion Matrix (Initial Model)', fontsize=14, fontweight='bold')
-# plt.xlabel('Predicted')
-# plt.ylabel('Actual')
-# plt.tight_layout()
-# plt.show()
 
-# print("Figure 5. Confusion matrix for the initial Random Forest model showing classification performance across quality categories.")
-# print("\nTable 2. Classification Report:")
-# print(classification_report(y_test, y_pred_test, target_names=label_encoder.classes_))
 ```
 
 ### 5. Baseline Random Forest: Confusion Matrix and Classification Report
@@ -523,53 +530,7 @@ whether the additional model complexity from tuning leads to meaningful
 gains in predictive accuracy.
 
 ```{python}
-# Final Results Summary
-# final_results = pd.DataFrame({
-#     'Model': ['Baseline (Most Frequent Class)', 'Random Forest (Initial)', 'Random Forest (Optimized)', 
-#               'Best Alternative (Gradient Boosting)'],
-#     'Test Accuracy': [
-#         max(np.bincount(y_test)) / len(y_test),  # Baseline
-#         test_accuracy,  # Initial RF
-#         accuracy_optimized,  # Optimized RF
-#         results['Gradient Boosting']['Accuracy']  # Best alternative
-#     ],
-#     'F1-Score': [
-#         np.nan,  # Baseline
-#         results['Random Forest (Initial)']['F1-Score'],
-#         results['Random Forest (Optimized)']['F1-Score'],
-#         results['Gradient Boosting']['F1-Score']
-#     ]
-# })
 
-# print("\n" + "="*60)
-# print("FINAL RESULTS SUMMARY")
-# print("="*60)
-# print(final_results.to_string(index=False))
-
-# # Key insights
-# print("\n" + "="*60)
-# print("KEY INSIGHTS FROM RANDOM FOREST ANALYSIS")
-# print("="*60)
-
-# print("\n1. MODEL PERFORMANCE:")
-# print(f"   - Random Forest achieved {accuracy_optimized:.1%} accuracy")
-# print(f"   - Improvement over baseline: {(accuracy_optimized - final_results.iloc[0]['Test Accuracy'])*100:.1f}%")
-# print(f"   - Outperformed next best model by: {(accuracy_optimized - results['Gradient Boosting']['Accuracy'])*100:.1f}%")
-
-# print("\n2. MOST IMPORTANT FEATURES FOR WINE QUALITY:")
-# for i, row in feature_importance.head(3).iterrows():
-#     print(f"   {i+1}. {row['feature']}: {row['importance']:.3f}")
-
-# print("\n3. OPTIMAL RANDOM FOREST CONFIGURATION:")
-# for param, value in rf_grid.best_params_.items():
-#     print(f"   - {param}: {value}")
-
-# print("\n4. MODEL ADVANTAGES DEMONSTRATED:")
-# print("   - No feature scaling required")
-# print("   - Captured non-linear relationships")
-# print("   - Provided interpretable feature importance")
-# print("   - Handled outliers in chemical measurements")
-# print("   - OOB score provided unbiased error estimate")
 ```
 
 ### Discussion
