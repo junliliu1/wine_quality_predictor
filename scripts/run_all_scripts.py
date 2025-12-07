@@ -14,10 +14,10 @@ commands = [
     "python scripts/04_train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model results/models/rf_wine_models.pkl",
 
     # 5a. Model Evaluation – Confusion Matrix
-    #"python scripts/05_evaluate_using_confusion_matrix.py --input-csv data/processed/wine_data_cleaned.csv --model-path results/models/rf_wine_models.pkl --output-dir results/evaluation",
+    "python scripts/05_evaluate_using_confusion_matrix.py --input-csv data/processed/wine_data_cleaned.csv --model-path results/models/rf_wine_models.pkl --output-dir results/evaluation",
 
     # 5b. Model Evaluation – Feature Importance
-    #"python scripts/06_evaluate_using_feature_importance.py --input-csv data/processed/wine_data_cleaned.csv --model-path results/models/rf_wine_models.pkl --output-dir results/evaluation",
+   # "python scripts/06_evaluate_using_feature_importance.py --input-csv data/processed/wine_data_cleaned.csv --model-path results/models/rf_wine_models.pkl --output-dir results/evaluation",
 
     # 5c. Hyperparameter Tuning
     #"python scripts/07_tune_random_forest_hyperparameters.py --input-csv data/processed/wine_data_cleaned.csv --output-model results/models/rf_wine_model_optimized.pkl --output-dir results/evaluation",
