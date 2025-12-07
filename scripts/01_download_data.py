@@ -1,7 +1,7 @@
 """
 Download wine quality datasets from UCI Machine Learning Repository.
 
-Usage: python scripts/download_data.py --output-dir data/raw
+Usage: python scripts/01_download_data.py --output-dir data/raw
 """
 
 import click

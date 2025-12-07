@@ -41,7 +41,7 @@ Follow these steps to set up the environment and run the analysis:
 
 ### 1. Clone this repository
 
-Clone this repository and cd to the root of the repository using these commands: 
+Clone this repository and cd to the root of the repository using these commands:
 
 ```bash
 git clone https://github.com/junliliu1/wine_quality_predictor.git
@@ -72,6 +72,9 @@ python scripts/generate_figures.py --input-csv data/processed/wine_data_cleaned.
 
 quarto render reports/wine_quality_predictor_report.qmd --to html
 quarto render reports/wine_quality_predictor_report.qmd --to pdf
+
+# to render into docs folder - for Github Pages
+quarto render reports/wine_quality_predictor_report.qmd  --to html  --output-dir ../docs
 ```
 
 5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
@@ -199,7 +202,8 @@ where you launched the container, and then type `docker compose rm`
 - Stopping it does NOT delete it. To remove it, run this: `docker rm <container_id>`
 
 ## Project Structure
-```
+
+```bash
 wine_quality_predictor/
 │
 ├── data/

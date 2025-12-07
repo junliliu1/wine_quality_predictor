@@ -15,7 +15,7 @@ It performs the following steps:
 6. Saves the trained model to a specified file path.
 
 Usage (from terminal):
-$ python train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model results/models/rf_wine_models.pkl
+$ python scripts/04_train_wine_quality_classifier.py --input-csv data/processed/wine_data_cleaned.csv --output-model results/models/rf_wine_models.pkl
 
 """
 from pathlib import Path
@@ -26,6 +26,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 @click.command()
 @click.option( "--input-csv", type=click.Path(exists=True), required=True, help="Path to the processed wine data CSV")
@@ -44,13 +46,27 @@ def main(input_csv: str, output_model: str, test_size: float, random_state: int)
 
     # 2. SPlit into features (X) and (y)
     X = data.drop(columns=["quality", "quality_category"]) 
-    y = data["quality"]
+    y = data["quality_category"]
 
-    # 3. Train-test split
+    # Encode target variable
+    label_encoder = LabelEncoder()
+    y_encoded = label_encoder.fit_transform(y)
+
+    # 3. Train-test split with stratification
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state
+        X, y_encoded, test_size=test_size, random_state=random_state, stratify=y_encoded
     )
+
     print(f"Split data: {len(X_train)} training samples, {len(X_test)} test samples")
+    print("\nClass distribution in training set:")
+    unique, counts = np.unique(y_train, return_counts=True)
+    for i, label in enumerate(label_encoder.classes_):
+        print(f"  {label}: {counts[i]} ({counts[i]/len(y_train)*100:.1f}%)")
+
+    print("\nClass distribution in test set:")
+    unique, counts = np.unique(y_test, return_counts=True)
+    for i, label in enumerate(label_encoder.classes_):
+        print(f"  {label}: {counts[i]} ({counts[i]/len(y_test)*100:.1f}%)")
 
     # 4. Build Random Forest model
     print("\nBuilding Random Forest Classifier...")

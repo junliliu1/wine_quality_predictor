@@ -1,7 +1,7 @@
 """
 Clean and transform wine quality data.
 
-Usage: python scripts/clean_data.py --red-wine data/raw/winequality-red.csv \
+Usage: python scripts/02_clean_data.py --red-wine data/raw/winequality-red.csv \
            --white-wine data/raw/winequality-white.csv --output-path data/processed/wine_data_cleaned.csv
 """
 
