@@ -7,7 +7,7 @@ This project predicts wine quality categories (Low, Medium, High) from physicoch
 ## Contributors
 
 * **Junli Liu** ([@junliliu1](https://github.com/junliliu1))
-* **Luis Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
+* **Luis Alonso Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
 * **Purity Jangaya** ([@PurityJ](https://github.com/Purityj))
 * **Jimmy Wang** ([@jimmy2026-V](https://github.com/jimmy2026-V))
 
@@ -91,8 +91,11 @@ python scripts/clean_data.py \
     --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
+python scripts/03_eda_wine_quality.py \
+    --input-csv data/processed/wine_data_cleaned.csv \
+    --output-dir results/figures
 
-# 5. Model Fitting/Training
+# 4. Model Fitting/Training
 python scripts/04_train_wine_quality_classifier.py \
      --input-csv data/processed/wine_data_cleaned.csv \
      --output-model models/rf_wine_models.pkl
@@ -122,7 +125,7 @@ quarto render reports/wine_quality_predictor_report.qmd --to pdf
 |--------|-------------|-------|--------|
 | `01_download_data.py` | Download/Extract raw wine quality datasets | UCI URLs | `data/raw/*.csv` |
 | `02_clean_data.py` | Clean, merge, and transform raw data | `data/raw/winequality-red.csv`, `data/raw/winequality-white.csv` | `data/processed/wine_data_cleaned.csv` |
-| `03_preprocess_data.py` | (Optional) Split into train/test, encode labels, scale features | `data/processed/wine_data_cleaned.csv` | `data/processed/train_test_data.pkl` |
+| `03_eda.py` | Exploratory Data Analysis - generate visualizations | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `04_train_wine_quality_classifier.py` | Train Random Forest classifier | `data/processed/wine_data_cleaned.csv` | `models/rf_wine_models.pkl` |
 | `05_evaluate_using_confusion_matrix.py` | Evaluate the baseline Random Forest using a confusion matrix and classification report on the test set. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/confusion_matrix_random_forest_initial.png`, `results/evaluation/classification_report_random_forest_initial.txt` |
 | `06_evaluate_using_feature_importance.py` | Analyze and visualize Random Forest feature importances. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/feature_importance_random_forest.png`, `results/evaluation/feature_importance_table.csv` |
