@@ -14,7 +14,7 @@ It performs the following steps:
 7. Saves the optimized model to a specified file path.
 
 Usage (from terminal):
-$ python scripts/08_tune_random_forest_hyperparameters.py \
+$ python scripts/07_tune_random_forest_hyperparameters.py \
     --input-csv data/processed/wine_data_cleaned.csv \
     --output-model results/models/rf_wine_model_optimized.pkl \
     --output-dir results/evaluation \
