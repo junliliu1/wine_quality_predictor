@@ -99,6 +99,15 @@ python scripts/05_evaluate_using_confusion_matrix.py \
   --input-csv data/processed/wine_data_cleaned.csv \
   --model-path results/models/rf_wine_models.pkl \
   --output-dir results/evaluation \
+python scripts/06_evaluate_using_feature_importance.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --model-path results/models/rf_wine_models.pkl \
+  --output-dir results/evaluation
+python scripts/07_tune_random_forest_hyperparameters.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --output-model results/models/rf_wine_model_optimized.pkl \
+  --output-dir results/evaluation \
+
 
 # 6. Render the final report
 quarto render reports/wine_quality_predictor_report.qmd --to html
