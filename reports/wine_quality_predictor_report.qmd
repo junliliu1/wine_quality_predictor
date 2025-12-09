@@ -50,17 +50,18 @@ We selected Random Forest as our primary algorithm for several reasons:
 
 ## Methods
 
-We used the Wine Quality Dataset from [@cortez2009modeling], comprising 6,497 wine samples (1,599 red, 4,898 white) with 11 physicochemical features and quality scores ranging from 3-9. After comprehensive data validation using Pandera, we trained a Random Forest classifier [@breiman2001random] using scikit-learn [@pedregosa2011scikit]. The data was split 75/25 for training and testing, with 5-fold stratified cross-validation for model selection. Hyperparameters were optimized using grid search over number of trees (100-300), max depth (10-30, None), and minimum samples for splitting (2-10) and leaf nodes (1-4). Model performance was evaluated using accuracy, precision, recall, F1-score, and confusion matrices, with feature importance rankings to identify key wine quality predictors.
+We used the Wine Quality Dataset from [@cortez2009modeling], comprising 6,497 wine samples (1,599 red, 4,898 white) with 11 physicochemical features and quality scores ranging from 3-9. After comprehensive data validation using Pandera-including schema checks, type verification, and removal of 1,177 duplicate transformations- the final analytical dataset contained 5,320 unique samples. We trained a Random Forest classifier [@breiman2001random] using scikit-learn [@pedregosa2011scikit]. The data was split 75/25 for training and testing, with 5-fold stratified cross-validation for model selection. Hyperparameters were optimized using grid search over number of trees (100-300), max depth (10-30, None), and minimum samples for splitting (2-10) and leaf nodes (1-4). Model performance was evaluated using accuracy, precision, recall, F1-score, and confusion matrices, with feature importance rankings were examined to identify key wine quality predictors.
 
 ### Data
 
 **Dataset**: Wine Quality Dataset (@cortez2009modeling)
 - **Red wine**: 1,599 samples
 - **White wine**: 4,898 samples
-<!-- TODO: Just keep the one that is correct if duplicates were removed or not -->
+<!-- Remove this column as they were duplicates -->
 - **Total**: 6,497 samples
-- **Total**: 6,497 samples (5,320 after removing duplicates)
 <!-- End of section to remove -->
+- **Total**: 6,497 samples (5,320 after removing duplicates)
+
 
 **Features (11 physicochemical properties)**:
 1. Fixed acidity (g/dm³)
@@ -154,8 +155,8 @@ To begin our analysis, we downloaded the two wine quality datasets provided by C
 
 The data were downloaded using our automated script, which saves the raw files into the data/raw directory.
 
-<!-- This should be deleted -->
-The output from this script is shown in Table @tbl-download-log.
+<!-- This I deleted as there are no track of this -->
+<!--quarto render wine_quality_predictor_report.qmd-->
 <!--  -->
 
 The two datasets downloaded were:
@@ -164,504 +165,92 @@ The two datasets downloaded were:
 - winequality-white.csv
 
 These files form the foundation of the analysis that follows.
-
+<!-- Changed this section in order to have three tables, also change the relative paths -->
 ```{python}
 #| echo: false
-#| output: false
 
 # Load datasets
-red_wine = pd.read_csv('../data/raw/winequality-red.csv', sep=';')
-white_wine = pd.read_csv('../data/raw/winequality-white.csv', sep=';')
+red = pd.read_csv("../data/raw/winequality-red.csv", sep=";").assign(wine_type=0)
+white = pd.read_csv("../data/raw/winequality-white.csv", sep=";").assign(wine_type=1)
+wine_data = pd.concat([red, white], ignore_index=True)
+
+# Prepare inline variables
+num_red = len(red)
+num_white = len(white)
+num_total = len(wine_data)
+
+quality_counts = wine_data["quality"].value_counts().sort_index()
+qualities = quality_counts.index.tolist()
+counts = quality_counts.values.tolist()
+percentages = [round(c / num_total * 100, 1) for c in counts]
+
+missing_vals = wine_data.isnull().sum().tolist()
+dtypes = [str(dt) for dt in wine_data.dtypes.tolist()]
+columns = wine_data.columns.tolist()
 
-# Add wine type indicator
-red_wine['wine_type'] = 0  # 0 for red
-white_wine['wine_type'] = 1  # 1 for white
-
-# Combine datasets
-wine_data = pd.concat([red_wine, white_wine], ignore_index=True)
-
-print("Dataset Overview:")
-print(f"Total samples: {len(wine_data)}")
-print(f"Red wine: {len(red_wine)} samples ({len(red_wine)/len(wine_data)*100:.1f}%)")
-print(f"White wine: {len(white_wine)} samples ({len(white_wine)/len(wine_data)*100:.1f}%)")
-print(f"Features: {wine_data.shape[1] - 1}")
-print(f"\nQuality distribution:")
-print(wine_data['quality'].value_counts().sort_index())
-```
-
-
-```{python}
-#| echo: false
-#| output: false
-
-# Check for missing values and data types
-print("Data Quality Check:")
-print(f"Missing values: {wine_data.isnull().sum().sum()}")
-print(f"\nData types:")
-print(wine_data.dtypes)
-print(f"\nBasic statistics:")
-wine_data.describe()
-```
-
-### 1.1 Data Validation
-
-Before proceeding with analysis, we perform comprehensive data validation checks following the [Data Validation Checklist](https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist) to ensure data quality and integrity.
-<!-- TODO: Consider removing this section -->
-```{python}
-#| echo: false
-#| output: false
-
-# Data Validation using Pandera
-# Define expected column names for raw wine data
-EXPECTED_COLUMNS = [
-    'fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar',
-    'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density',
-    'pH', 'sulphates', 'alcohol', 'quality'
-]
-
-# Define valid quality score range
-VALID_QUALITY_RANGE = (3, 9)
-
-# Define reasonable ranges for physicochemical properties based on domain knowledge
-FEATURE_RANGES = {
-    'fixed acidity': (0, 20),        # g/dm³ - typical wine range
-    'volatile acidity': (0, 2),       # g/dm³ - acetic acid
-    'citric acid': (0, 2),            # g/dm³
-    'residual sugar': (0, 100),       # g/dm³
-    'chlorides': (0, 1),              # g/dm³
-    'free sulfur dioxide': (0, 300),  # mg/dm³
-    'total sulfur dioxide': (0, 500), # mg/dm³
-    'density': (0.9, 1.1),            # g/cm³ - close to water
-    'pH': (2, 5),                     # typical wine pH range
-    'sulphates': (0, 3),              # g/dm³
-    'alcohol': (5, 20)                # % vol.
-}
-
-print("Data Validation Configuration:")
-print(f"Expected columns: {len(EXPECTED_COLUMNS)}")
-print(f"Valid quality range: {VALID_QUALITY_RANGE}")
-print("Feature ranges defined for anomaly detection.")
-```
-
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 1 & 2: File Format and Column Names
-print("="*60)
-print("VALIDATION CHECK 1 & 2: File Format and Column Names")
-print("="*60)
-
-def validate_column_names(df, expected_cols, dataset_name):
-    """Validate that all expected columns are present."""
-    actual_cols = set(df.columns)
-    expected_set = set(expected_cols)
-    
-    missing = expected_set - actual_cols
-    extra = actual_cols - expected_set
-    
-    if missing:
-        raise ValueError(f"{dataset_name}: Missing columns: {missing}")
-    if extra:
-        print(f"  WARNING: {dataset_name} has extra columns: {extra}")
-    
-    print(f"  {dataset_name}: All {len(expected_cols)} expected columns present")
-    return True
-
-# Validate red wine
-validate_column_names(red_wine.drop('wine_type', axis=1), EXPECTED_COLUMNS, "Red wine")
-
-# Validate white wine
-validate_column_names(white_wine.drop('wine_type', axis=1), EXPECTED_COLUMNS, "White wine")
-
-# Validate combined dataset
-validate_column_names(wine_data.drop(['wine_type', 'quality_category'], axis=1, errors='ignore'), 
-                     EXPECTED_COLUMNS, "Combined dataset")
-
-print("\n[PASSED] File format and all column names validation")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 3: Empty Observations
-print("="*60)
-print("VALIDATION CHECK 3: Empty Observations")
-print("="*60)
-
-def check_empty_observations(df, dataset_name):
-    """Check for completely empty rows."""
-    empty_rows = df.isnull().all(axis=1).sum()
-    if empty_rows > 0:
-        raise ValueError(f"{dataset_name}: Found {empty_rows} completely empty rows")
-    print(f"  {dataset_name}: No completely empty observations found")
-    return True
-
-check_empty_observations(red_wine, "Red wine")
-check_empty_observations(white_wine, "White wine")
-check_empty_observations(wine_data, "Combined dataset")
-
-print("\n[PASSED] No empty observations found")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 4: Missingness
-print("="*60)
-print("VALIDATION CHECK 4: Missingness")
-print("="*60)
-
-MISSING_THRESHOLD = 0.05  # Allow up to 5% missing values per column
-
-def check_missingness(df, threshold, dataset_name):
-    """Check that missing values do not exceed threshold."""
-    missing_pct = df.isnull().mean()
-    violations = missing_pct[missing_pct > threshold]
-    
-    if len(violations) > 0:
-        raise ValueError(f"{dataset_name}: Columns exceed {threshold*100}% missing threshold:\n{violations}")
-    
-    total_missing = df.isnull().sum().sum()
-    print(f"  {dataset_name}: Total missing values = {total_missing}")
-    print(f"  {dataset_name}: Max missing % per column = {missing_pct.max()*100:.2f}%")
-    return True
-
-check_missingness(red_wine, MISSING_THRESHOLD, "Red wine")
-check_missingness(white_wine, MISSING_THRESHOLD, "White wine")
-check_missingness(wine_data, MISSING_THRESHOLD, "Combined dataset")
-
-print(f"\n[PASSED] All columns below {MISSING_THRESHOLD*100}% missing threshold")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 5: Data Types
-print("="*60)
-print("VALIDATION CHECK 5: Data Types")
-print("="*60)
-
-EXPECTED_DTYPES = {
-    'fixed acidity': 'float64',
-    'volatile acidity': 'float64',
-    'citric acid': 'float64',
-    'residual sugar': 'float64',
-    'chlorides': 'float64',
-    'free sulfur dioxide': 'float64',
-    'total sulfur dioxide': 'float64',
-    'density': 'float64',
-    'pH': 'float64',
-    'sulphates': 'float64',
-    'alcohol': 'float64',
-    'quality': 'int64'
-}
-
-def check_data_types(df, expected_dtypes, dataset_name):
-    """Validate that columns have expected data types."""
-    type_errors = []
-    for col, expected_type in expected_dtypes.items():
-        if col in df.columns:
-            actual_type = str(df[col].dtype)
-            if actual_type != expected_type:
-                type_errors.append(f"  {col}: expected {expected_type}, got {actual_type}")
-    
-    if type_errors:
-        raise ValueError(f"{dataset_name}: Data type mismatches:\n" + "\n".join(type_errors))
-    
-    print(f"  {dataset_name}: All columns have correct data types")
-    return True
-
-check_data_types(wine_data, EXPECTED_DTYPES, "Combined dataset")
-
-print("\n[PASSED] Data types validation")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 6: Duplicate Observations
-print("="*60)
-print("VALIDATION CHECK 6: Duplicate Observations")
-print("="*60)
-
-def check_duplicates(df, dataset_name):
-    """Check for and report duplicate rows."""
-    duplicates = df.duplicated().sum()
-    duplicate_pct = duplicates / len(df) * 100
-    
-    print(f"  {dataset_name}: {duplicates} duplicate rows ({duplicate_pct:.2f}%)")
-    
-    return duplicates
-
-dup_red = check_duplicates(red_wine, "Red wine")
-dup_white = check_duplicates(white_wine, "White wine")
-dup_combined = check_duplicates(wine_data, "Combined dataset")
-
-# Remove duplicates from combined dataset
-print(f"\nRemoving {dup_combined} duplicate rows from combined dataset...")
-wine_data = wine_data.drop_duplicates().reset_index(drop=True)
-print(f"Dataset size after removing duplicates: {len(wine_data)} samples")
-
-# Verify no duplicates remain
-dup_after = wine_data.duplicated().sum()
-print(f"Duplicates remaining: {dup_after}")
-
-print("\n[PASSED] Duplicate observations removed")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 7: No Outliers neither Anamalous Values
-print("="*60)
-print("VALIDATION CHECK 7: NO OUTLIERS OR ANAMALOUS VALUES")
-print("="*60)
-
-def check_value_ranges(df, feature_ranges, dataset_name):
-    """Check for values out of domain ranges."""
-    outliers={}
-
-    for column, (min_val, max_val) in feature_ranges.items():
-        below_min = (df[column] < min_val).sum()
-        above_max = (df[column] > max_val).sum()
-
-        if below_min > 0 or above_max > 0:
-            outliers[column] = {
-                'below_min': below_min,
-                'above_max': above_max,
-                'expected_range': (min_val, max_val),
-                'actual_range': (df[column].min(), df[column].max())
-            }
-        
-    if outliers:
-        print(f"  {dataset_name}: Found values outside expected ranges:")
-        for column, info in outliers.items():
-            print(f"    {column}: expected [{info['expected_range'][0]}, {info['expected_range'][1]}], "
-                  f"got [{info['actual_range'][0]:.3f}, {info['actual_range'][1]:.3f}]")
-            print(f"      - {info['below_min']} values below min, {info['above_max']} values above max")
-    else:
-        print(f"  {dataset_name}: All values within expected ranges")
-    
-    return outliers
-
-outliers = check_value_ranges(wine_data, FEATURE_RANGES, "Combined dataset")
-
-if not outliers:
-    print("\n[PASSED] No anomalous values neither outliers detected")
-else:
-    print("\n[WARNING] Some values outside expected ranges - investigate before proceeding")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 8: Correct Category Levels (for categorical features)
-print("="*60)
-print("VALIDATION CHECK 8: CATEGORY LEVELS")
-print("="*60)
-
-def check_category_levels(df, column, expected_values, dataset_name):
-    """Validate categorical column has expected values"""
-    actual_values = set(df[column].unique())
-    expected_set = set(expected_values)
-
-    unexpected_set = actual_values - expected_set
-    missing_set = expected_set - actual_values
-
-    if unexpected_set:
-        print(f"\n WARNING: {dataset_name} {column} has unexpected values: {unexpected_set}")
-    if missing_set:
-        print(f"\n  INFO: {dataset_name} {column} missing expected values: {missing_set}")
-
-    print(f"\n {dataset_name} {column} has {len(actual_values)} unique values: {sorted(actual_values)}")
-    return len(unexpected_set) == 0
-
-# Check quality values (should be integers 3-9)
-expected_quality = list(range(3, 10))  # 3, 4, 5, 6, 7, 8, 9
-check_category_levels(wine_data, 'quality', expected_quality, "Combined dataset")
-
-# Check wine_type values (should be 0 or 1)
-expected_wine_type = [0, 1]
-check_category_levels(wine_data, 'wine_type', expected_wine_type, "Combined dataset")
-
-print("\n[PASSED] Category levels validation")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 9: Target/response variable follows expected distribution
-print("="*60)
-print("VALIDATION CHECK 9: Target Variable follows expected distribution")
-print("="*60)
-
-def check_target_distribution(df, target_col, dataset_name):
-    """Analyze target variable distribution for imbalance."""
-    distribution = df[target_col].value_counts().sort_index()
-    proportions = df[target_col].value_counts(normalize=True).sort_index()
-    
-    print(f"\n  {dataset_name} - {target_col} distribution:")
-    for val, count in distribution.items():
-        print(f"    {val}: {count} ({proportions[val]*100:.1f}%)")
-    
-    # Check for severe imbalance (any class < 1%)
-    min_proportion = proportions.min()
-    max_proportion = proportions.max()
-    imbalance_ratio = max_proportion / min_proportion
-    
-    print(f"\n  Class imbalance ratio: {imbalance_ratio:.1f}:1")
-    
-    if min_proportion < 0.01:
-        print(f"  WARNING: Severe class imbalance detected (min class = {min_proportion*100:.2f}%)")
-    elif min_proportion < 0.05:
-        print(f"  WARNING: Moderate class imbalance detected (min class = {min_proportion*100:.2f}%)")
-    else:
-        print(f"  Class distribution is acceptable for modeling")
-    
-    return imbalance_ratio
-
-imbalance = check_target_distribution(wine_data, 'quality', "Combined dataset")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Validation Check 10 & 11: Feature Correlations (Target-Feature and Feature-Feature)
-print("="*60)
-print("VALIDATION CHECK 10 & 11: Feature Correlations")
-print("="*60)
-
-def check_correlations(df, target_col, feature_cols, dataset_name):
-    """Check for suspicious correlations that might indicate data issues"""
-
-    # Target-Feature correlations
-    print(f"\n {dataset_name} - Target-Feature Correlations:")
-    target_corr = df[feature_cols].corrwith(df[target_col]).abs().sort_values(ascending=False)
-
-    # Flag if any feature has very high correlation with target(potential leakage)
-    high_target_corr = target_corr[target_corr > 0.9]
-    if len(high_target_corr) > 0:
-        print(f"    WARNING: Features with suspiciously high target correlation (>0.9):")
-        for feat, corr in high_target_corr.items():
-            print(f"    {feat}: {corr:.3f}")
-    else:
-        print(f"    No suspiciously high target correlations detected")
-    
-    print(f"    Highest target correlation: {target_corr.index[0]} ({target_corr.iloc[0]:.3f})")
-    print(f"  Lowest target correlation: {target_corr.index[-1]} ({target_corr.iloc[-1]:.3f})")
-
-    # Feature-Feature correlations
-    print(f"\n {dataset_name} - Feature-Feature Correlations:")
-    corr_matrix = df[feature_cols].corr().abs()
-
-    # Find highly correlated feature pairs (excluding diagonal)
-    high_corr_pairs = []
-    for i in range(len(feature_cols)):
-        for j in range(i+1, len(feature_cols)):
-            corr = corr_matrix.iloc[i, j]
-            if corr > 0.8:
-                high_corr_pairs.append((feature_cols[i], feature_cols[j], corr))
-    
-    if high_corr_pairs:
-        print(f"    Highly correlated feature pairs (>0.8):")
-        for f1, f2, corr in sorted(high_corr_pairs, key=lambda x: -x[2]):
-            print(f"    {f1} <-> {f2}: {corr:.3f}")
-    
-    else:
-        print(f"   No highly correlated features pairs (>0.8) detected")
-    
-    return target_corr, high_corr_pairs
-
-feature_cols = [col for col in EXPECTED_COLUMNS if col != 'quality']
-target_corr, high_corr = check_correlations(wine_data, 'quality', feature_cols, "Combined dataset")
-
-print("\n[INFO] Correlation analysis complete - no data leakage detected")
-```
-
-```{python}
-#| echo: false
-#| output: false
-
-# Comprehensive Pandera Schema Validation
-print("="*60)
-print("COMPREHENSIVE SCHEMA VALIDATION (Pandera)")
-
-wine_schema = pa.DataFrameSchema({
-    "fixed acidity": Column(float, Check.in_range(0, 20), nullable=False), 
-    "volatile acidity": Column(float, Check.in_range(0, 2), nullable=False),
-    "citric acid": Column(float, Check.in_range(0, 2), nullable=False),
-    "residual sugar": Column(float, Check.in_range(0, 100), nullable=False),
-    "chlorides": Column(float, Check.in_range(0, 1), nullable=False),
-    "free sulfur dioxide": Column(float, Check.in_range(0, 300), nullable=False),
-    "total sulfur dioxide": Column(float, Check.in_range(0, 500), nullable=False),
-    "density": Column(float, Check.in_range(0.9, 1.1), nullable=False),
-    "pH": Column(float, Check.in_range(2, 5), nullable=False),
-    "sulphates": Column(float, Check.in_range(0, 3), nullable=False),
-    "alcohol": Column(float, Check.in_range(5, 20), nullable=False),
-    "quality": Column(int, Check.in_range(3, 9), nullable=False),
-})
-
-try:
-    wine_schema.validate(wine_data[EXPECTED_COLUMNS])
-    schema_status = "PASSED"
-    print("\n[PASSED] Pandera schema validation successful!")
-except pa.errors.SchemaError as e:
-    schema_status = "FAILED"
-    print(f"\n[FAILED] Schema validation error: {e}")
 ```
 ```{python}
 #| echo: false
-#| label: tbl-validation-summary
-#| tbl-cap: "Data validation summary - all checks completed successfully"
+#| label: tbl-dataset-overview
+#| tbl-cap: "Summary of dataset composition after loading and combining red and white wine samples."
 
-validation_summary = pd.DataFrame({
-    'Check': [
-        '1. File Format',
-        '2. Column Names',
-        '3. Empty Observations',
-        '4. Missingness',
-        '5. Data Types',
-        '6. Duplicate Observations',
-        '7. Outliers/Anomalies',
-        '8. Category Levels',
-        '9. Target Distribution',
-        '10. Target-Feature Correlation',
-        '11. Feature-Feature Correlation',
-        '12. Schema Validation'
-    ],
-    'Status': [
-        'PASSED',
-        'PASSED',
-        'PASSED',
-        'PASSED',
-        'PASSED',
-        'PASSED (removed)',
-        'PASSED',
-        'PASSED',
-        'INFO (imbalance noted)',
-        'PASSED (no leakage)',
-        'INFO (some correlations)',
-        schema_status
+dataset_overview = pd.DataFrame({
+    "Wine Type": ["Red", "White", "Total"],
+    "Samples": [num_red, num_white, num_total],
+    "Percentage": [
+        round(num_red/num_total*100,1),
+        round(num_white/num_total*100,1),
+        100
     ]
 })
 
-display(validation_summary)
+dataset_overview
 ```
 
-Data validation is complete. @tbl-validation-summary shows all checks passed successfully, confirming the dataset is ready for exploratory analysis.
+As shown in Table @tbl-dataset-overview, the dataset contains 1,599 red wines and 4,898 white wines, resulting in a combined total of 6,497 samples that form the basis for our subsequent cleaning, validation, and exploratory analysis.
+
+```{python}
+#| echo: false
+#| label: tbl-quality-distribution
+#| tbl-cap: "Distribution of wine quality scores in the combined dataset."
+
+quality_table = pd.DataFrame({
+    "Quality Score": qualities,
+    "Count": counts,
+    "Percentage": percentages
+})
+
+quality_table
+```
+
+Table @tbl-quality-distribution shows that most wines score between 5 and 7, underscoring the pronounced class imbalance that must be considered when selecting evaluation metrics and building predictive models.
+
+```{python}
+#| echo: false
+#| label: tbl-data-quality
+#| tbl-cap: "Summary of missing values and data types for each variable in the combined dataset."
+
+data_quality_table = pd.DataFrame({
+    "Variable": columns,
+    "Missing Values": missing_vals,
+    "Data Type": dtypes
+})
+
+data_quality_table
+```
+
+As detailed in Table @tbl-data-quality, the dataset contains no missing values and all variables have consistent types, which helps minimize preprocessing overhead and reduces the risk of introducing bias during model training.
+
+<!-- Finished the change. I suggest eliminate the Table 3. Summary of missing values and data types -->
+
+### 1. Data Validation
+
+Before proceeding with analysis, we perform comprehensive data validation checks following the [Data Validation Checklist](https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist) to ensure data quality and integrity.
+<!-- TODO: Consider removing this section -->
+
 <!-- End of section to remove -->
 
-Data validation was performed using Pandera schema checks. All 6,497 observations passed validation with no missing values or out-of-range entries detected.
+We validated the raw red and white wine datasets prior to analysis by confirming correct file structure, column names, and data types, and verifying the absence of missing or empty observations. Duplicate records (1,177 rows) were removed from the combined dataset, resulting in 5,320 unique samples. All features fell within expected ranges, category levels were valid, and the target variable showed a highly imbalanced—but expected—quality distribution. Correlation checks indicated no problematic collinearity or data leakage issues.
 
 
 ### 2. Exploratory Data Analysis
