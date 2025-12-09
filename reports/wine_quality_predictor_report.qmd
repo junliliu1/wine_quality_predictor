@@ -1,6 +1,6 @@
 ---
 title: Predicting Wine Quality using Random Forest Classifier
-author: "Junli Liu, Purity Jangaya, Luis Alonso Alvarez & Jimmy Wang"
+author: "Purity Jangaya, Junli Liu, Jimmy Wang & Luis Alonso Alvarez"
 date: "2025/11/20"
 jupyter: python3
 
@@ -50,41 +50,17 @@ We selected Random Forest as our primary algorithm for several reasons:
 
 ## Methods
 
-### Why Random Forest?
-
-We selected Random Forest as our primary algorithm for several reasons:
-
-1. **Ensemble Learning**: Combines multiple decision trees to reduce overfitting and improve generalization
-2. **Feature Importance**: Provides built-in feature importance metrics for understanding wine quality factors
-3. **Robustness**: Handles outliers and noise effectively without extensive preprocessing
-4. **Non-linear Relationships**: Captures complex interactions between chemical properties
-5. **No Scaling Required**: Works well with features at different scales
-6. **Out-of-Bag (OOB) Error**: Provides unbiased error estimates without separate validation set
-
-### Research Questions
-
-1. Can Random Forest effectively predict wine quality from physicochemical properties?
-2. Which chemical properties are most important for determining wine quality?
-3. How does Random Forest performance compare to other classification methods?
-4. What are the optimal hyperparameters for our Random Forest model?
-
-## Methods
-
-We used the Wine Quality Dataset from [@cortez2009modeling], comprising 6,490 wine samples (1,599 red, 4,891 white) with 11 physicochemical features and quality scores ranging from 3-9. After comprehensive data validation using Pandera, we trained a Random Forest classifier [@breiman2001random] using scikit-learn [@pedregosa2011scikit]. The data was split 75/25 for training and testing, with 5-fold stratified cross-validation for model selection. Hyperparameters were optimized using grid search over number of trees (100-300), max depth (10-30, None), and minimum samples for splitting (2-10) and leaf nodes (1-4). Model performance was evaluated using accuracy, precision, recall, F1-score, and confusion matrices, with feature importance rankings to identify key wine quality predictors.
+We used the Wine Quality Dataset from [@cortez2009modeling], comprising 6,497 wine samples (1,599 red, 4,898 white) with 11 physicochemical features and quality scores ranging from 3-9. After comprehensive data validation using Pandera, we trained a Random Forest classifier [@breiman2001random] using scikit-learn [@pedregosa2011scikit]. The data was split 75/25 for training and testing, with 5-fold stratified cross-validation for model selection. Hyperparameters were optimized using grid search over number of trees (100-300), max depth (10-30, None), and minimum samples for splitting (2-10) and leaf nodes (1-4). Model performance was evaluated using accuracy, precision, recall, F1-score, and confusion matrices, with feature importance rankings to identify key wine quality predictors.
 
 ### Data
 
 **Dataset**: Wine Quality Dataset (@cortez2009modeling)
 - **Red wine**: 1,599 samples
 - **White wine**: 4,898 samples
+<!-- TODO: Just keep the one that is correct if duplicates were removed or not -->
 - **Total**: 6,497 samples
-
-### Data
-
-**Dataset**: Wine Quality Dataset (@cortez2009modeling)
-- **Red wine**: 1,599 samples
-- **White wine**: 4,898 samples
-- **Total**: 6,497 samples
+- **Total**: 6,497 samples (5,320 after removing duplicates)
+<!-- End of section to remove -->
 
 **Features (11 physicochemical properties)**:
 1. Fixed acidity (g/dm³)
@@ -170,7 +146,6 @@ np.random.seed(42)
 sns.set_theme(style="whitegrid")
 sns.set_palette("husl")
 
-print("Libraries loaded successfully!")
 ```
 
 ### 1. Data Loading and Preparation
@@ -178,7 +153,10 @@ print("Libraries loaded successfully!")
 To begin our analysis, we downloaded the two wine quality datasets provided by Cortez et al. (2009). These files contain measurements for red and white wine samples, including physicochemical properties and expert-assigned quality scores.
 
 The data were downloaded using our automated script, which saves the raw files into the data/raw directory.
+
+<!-- This should be deleted -->
 The output from this script is shown in Table @tbl-download-log.
+<!--  -->
 
 The two datasets downloaded were:
 
@@ -228,7 +206,7 @@ wine_data.describe()
 ### 1.1 Data Validation
 
 Before proceeding with analysis, we perform comprehensive data validation checks following the [Data Validation Checklist](https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist) to ensure data quality and integrity.
-
+<!-- TODO: Consider removing this section -->
 ```{python}
 #| echo: false
 #| output: false
@@ -681,10 +659,14 @@ display(validation_summary)
 ```
 
 Data validation is complete. @tbl-validation-summary shows all checks passed successfully, confirming the dataset is ready for exploratory analysis.
+<!-- End of section to remove -->
+
+Data validation was performed using Pandera schema checks. All 6,497 observations passed validation with no missing values or out-of-range entries detected.
+
 
 ### 2. Exploratory Data Analysis
 
-Our exploratory analysis reveals several key insights about the wine quality dataset:
+Our exploratory analysis reveals key insights about the wine quality dataset:
 
 **Quality Distribution:** As shown in @fig-quality-distribution, wine quality scores follow a normal distribution centered around scores 5-6, with very few wines receiving extreme ratings (3 or 9). The dataset exhibits a significant class imbalance, with medium-quality wines (scores 6-7) comprising the majority of samples. White wines show a broader distribution across quality scores compared to red wines, which are more concentrated in the 5-6 range.
 
@@ -694,94 +676,15 @@ Our exploratory analysis reveals several key insights about the wine quality dat
 
 These patterns inform our modeling strategy: the class imbalance requires careful handling, the strong alcohol-quality relationship suggests it will be a key predictive feature, and the feature intercorrelations indicate that regularization techniques or tree-based methods may be particularly appropriate for this dataset.
 
-```{python}
-#| echo: false
-#| label: fig-quality-distribution
-#| fig-cap: "Wine quality distribution analysis showing (a) overall quality score distribution, (b) distribution by wine type, and (c) quality categories for classification"
-#| fig-width: 15
-#| fig-height: 5
-
-# Quality distribution visualization
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-# Overall distribution
-wine_data['quality'].value_counts().sort_index().plot(kind='bar', ax=axes[0], color='steelblue')
-axes[0].set_title('Overall Wine Quality Distribution', fontsize=14, fontweight='bold')
-axes[0].set_xlabel('Quality Score')
-axes[0].set_ylabel('Count')
-axes[0].grid(True, alpha=0.3)
-
-# By wine type
-quality_by_type = wine_data.groupby(['wine_type', 'quality']).size().unstack(fill_value=0)
-quality_by_type.T.plot(kind='bar', ax=axes[1], color=['darkred', 'gold'], alpha=0.8)
-axes[1].set_title('Quality Distribution by Wine Type', fontsize=14, fontweight='bold')
-axes[1].set_xlabel('Quality Score')
-axes[1].set_ylabel('Count')
-axes[1].legend(['Red Wine', 'White Wine'])
-axes[1].grid(True, alpha=0.3)
-
-# Quality categories for Random Forest
-def categorize_quality(quality):
-    if quality <= 5:
-        return 'Low (3-5)'
-    elif quality <= 7:
-        return 'Medium (6-7)'
-    else:
-        return 'High (8-9)'
-
-wine_data['quality_category'] = wine_data['quality'].apply(categorize_quality)
-category_counts = wine_data['quality_category'].value_counts()
-category_counts.plot(kind='pie', ax=axes[2], autopct='%1.1f%%', colors=['#ff9999', '#66b3ff', '#99ff99'])
-axes[2].set_title('Quality Categories for Classification', fontsize=14, fontweight='bold')
-axes[2].set_ylabel('')
-
-plt.tight_layout()
-plt.show()
-```
+![Quality Categories for Classification](../results/eda/quality_distributions.png){#fig-quality-distribution}
 
 @fig-quality-distribution shows the distribution of wine quality scores. Most wines receive medium quality scores (5-7), with very few at the extremes.
 
-```{python}
-#| echo: false
-#| label: fig-feature-correlations
-#| fig-cap: "Feature correlations with wine quality score. Green bars indicate positive correlations, red bars indicate negative correlations"
-#| fig-width: 10
-#| fig-height: 8
-
-# Feature correlations with quality
-feature_cols = wine_data.columns.drop(['quality', 'quality_category'])
-correlations = wine_data[feature_cols].corrwith(wine_data['quality']).sort_values(ascending=False)
-
-plt.figure(figsize=(10, 8))
-colors = ['green' if x > 0 else 'red' for x in correlations.values]
-correlations.plot(kind='barh', color=colors)
-plt.title('Feature Correlations with Wine Quality', fontsize=14, fontweight='bold')
-plt.xlabel('Correlation Coefficient')
-plt.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
-plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-```
+![Feature Correlations with Wine Quality](../results/eda/feature_correlations.png){#fig-feature-correlations}
 
 @fig-feature-correlations reveals that alcohol content shows the strongest positive correlation with quality, while volatile acidity shows the strongest negative correlation.
 
-```{python}
-#| echo: false
-#| label: fig-correlation-heatmap
-#| fig-cap: "Correlation heatmap showing relationships between all physicochemical features"
-#| fig-width: 12
-#| fig-height: 10
-
-# Feature correlation heatmap
-plt.figure(figsize=(12, 10))
-correlation_matrix = wine_data[feature_cols].corr()
-mask = np.triu(np.ones_like(correlation_matrix), k=1)
-sns.heatmap(correlation_matrix, mask=mask, annot=True, fmt='.2f', 
-            cmap='coolwarm', center=0, square=True, linewidths=1)
-plt.title('Feature Correlation Heatmap', fontsize=14, fontweight='bold')
-plt.tight_layout()
-plt.show()
-```
+![Feature Correlation Heatmap](../results/eda/correlation_heatmap.png){#fig-correlation-heatmap}
 
 @fig-correlation-heatmap displays the correlations between all physicochemical features, helping identify potential multicollinearity issues for our models.
 
