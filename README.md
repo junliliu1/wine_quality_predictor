@@ -81,18 +81,18 @@ quarto render reports/wine_quality_predictor_report.qmd  --to html  --output-dir
 
 ```bash
 # 1. Download/Extract Data
-python scripts/download_data.py \
+python scripts/01_download_data.py \
     --output-dir data/raw
 
 # 2. Clean/Transform Data
-python scripts/clean_data.py \
+python scripts/02_clean_data.py \
     --red-wine data/raw/winequality-red.csv \
     --white-wine data/raw/winequality-white.csv \
     --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
-python scripts/03_eda_wine_quality.py \
-    --input-csv data/processed/wine_data_cleaned.csv \
+python scripts/03_eda.py \
+    --input-file data/processed/wine_data_cleaned.csv \
     --output-dir results/figures
 
 # 4. Model Fitting/Training
@@ -101,6 +101,10 @@ python scripts/04_train_wine_quality_classifier.py \
      --output-model models/rf_wine_models.pkl
 
 # 5. Model Evaluation
+python scripts/05_model_evaluation_random_forest.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --model-path models/rf_wine_models.pkl \
+  --output-dir results/evaluation
 
 # 6. Render the final report
 quarto render reports/wine_quality_predictor_report.qmd --to html
@@ -115,7 +119,7 @@ quarto render reports/wine_quality_predictor_report.qmd --to pdf
 | `02_clean_data.py` | Clean, merge, and transform raw data | `data/raw/winequality-red.csv`, `data/raw/winequality-white.csv` | `data/processed/wine_data_cleaned.csv` |
 | `03_eda.py` | Exploratory Data Analysis - generate visualizations | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `04_train_wine_quality_classifier.py` | Train Random Forest classifier | `data/processed/wine_data_cleaned.csv` | `models/rf_wine_models.pkl` |
-| `05_evaluate_model.py` | Evaluate model (metrics, confusion matrix, feature importance) | `models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/plots/*`, `results/metrics/*.json` |
+| `05_model_evaluation_random_forest.py` | Evaluate model (metrics, confusion matrix, feature importance) | `models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/*` |
 | `generate_figures.py` | Generate all figures for the final report | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `reports/wine_quality_predictor_report.qmd` | Render final report | Processed data + generated figures | HTML + PDF files in `reports/` |
 
