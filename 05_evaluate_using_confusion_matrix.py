@@ -1,6 +1,6 @@
 """
-Evaluate a trained Random Forest wine quality classifier using
-a confusion matrix and classification report.
+Evaluate a trained Random Forest wine quality classifier using a
+confusion matrix and classification report.
 
 This script performs the following steps:
 1. Loads processed wine data from a CSV file.
@@ -12,7 +12,7 @@ This script performs the following steps:
    - Classification report (as a text file)
 
 Usage (from terminal):
-$ python 05_evaluate_using_confusion_matrix.py \
+$ python scripts/05_evaluate_using_confusion_matrix.py \
     --input-csv data/processed/wine_data_cleaned.csv \
     --model-path results/models/rf_wine_models.pkl \
     --output-dir results/evaluation \
@@ -70,7 +70,8 @@ from sklearn.metrics import confusion_matrix, classification_report
     "--target-column",
     type=str,
     default="quality",
-    help="Name of the target column in the data (e.g., 'quality' or 'quality_category')",
+    help="Name of the target column in the data "
+         "(e.g., 'quality' or 'quality_category').",
 )
 def main(
     input_csv: str,
@@ -80,9 +81,9 @@ def main(
     random_state: int,
     target_column: str,
 ) -> None:
-    """Evaluate the Random Forest classifier on the test set."""
+    """Evaluate the Random Forest classifier using a confusion matrix."""
     print("=" * 60)
-    print("STEP 5: EVALUATE MODEL")
+    print("STEP 5: EVALUATE MODEL (CONFUSION MATRIX)")
     print("=" * 60)
 
     output_path = Path(output_dir)
@@ -157,7 +158,7 @@ def main(
         f.write(report)
     print(f"\nSaved classification report to: {report_path}")
 
-    print("\nModel evaluation complete!")
+    print("\nModel evaluation (confusion matrix + classification report) complete!")
 
 
 if __name__ == "__main__":

@@ -973,7 +973,7 @@ These results indicate that the model fits the training data very well while mai
 
 ```
 
-### 5. Random Forest Hyperparameter Optimization
+### 5. Baseline Random Forest: Confusion Matrix and Classification Report
 
 ```{python}
 
