@@ -50,22 +50,16 @@ cd wine_quality_predictor
 
 ### 2. Run the Analysis
 
-1. Run the following command on the terminal(on your computer) to build and start the docker container:
+1. Run the following command on the terminal(on your computer) to build and start the docker container(this may take 8-12 minutes):
 
 ```bash
 docker compose up --build
 ```
 
-If you get: container name already exists, run this command to remove it:
+If Docker says the container name already exists or is in use, run the command below to delete it, then run the previous Docker Compose command again.
 
 ```bash
 docker rm -f wine-quality-predictor
-```
-
-If you want to rebuild after pulling new changes, run this command:
-
-```bash
-docker compose up --build
 ```
 
 2. In the terminal, look for a URL that starts with `http://127.0.0.1:8888/lab` 
@@ -82,10 +76,11 @@ Copy and paste that URL into your browser.
 python scripts/run_all_scripts.py
 ```
 
-This script runs all processing, modeling, and evaluation steps and automatically generates both the HTML versions of the final report. You can find the generated files in the results/ folder.
-To view the report, copy the path to either the HTML file and paste it to open it in your browser.
+This script runs all data processing, modeling, and evaluation scripts, and automatically generates the final report in HTML format. The output HTML file `(wine_quality_predictor_report.html)` will appear in the `reports/` folder.
 
-5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
+To view the report correctly (with all images), open the reports/ folder on your local machine, copy the file path of the generated HTML report, and paste it into your browser.
+
+5. Alternatively, if you want to run the individual analysis Python scripts, run the following commands one after another in the order shown below (script 7: hyperparameter tuning, may take 5-10 minutes):
 
 ```bash
 # 1. Download/Extract Data
@@ -130,8 +125,8 @@ quarto render reports/wine_quality_predictor_report.qmd --to html
 quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
 
-You can find the generated files in the results/ folder.
-To view the report, copy the path to either the HTML or PDF file and open it in your browser.
+The output HTML file `(wine_quality_predictor_report.html)` will appear in the `reports/` folder.
+To view the report correctly (with all images), open the reports/ folder on your local machine, copy the file path of the generated HTML report, and paste it into your browser.
 
 ### Script Details
 

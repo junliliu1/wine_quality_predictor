@@ -6,7 +6,7 @@ jupyter: python3
 format:
   html:
     toc: true
-    toc-depth: 4
+    toc-depth: 3
     #output-file: index.html
   pdf:
     toc: true
@@ -619,13 +619,6 @@ Key Takeaways:
 
 - The optimized Random Forest can now handle imbalanced class distributions effectively, providing both high accuracy and better sensitivity for the minority class.
 
-
-###### Why Random Forest Excelled
-
-1. **Ensemble Advantage**: Aggregating predictions from multiple decision trees reduces overfitting and improves generalization compared to single models.
-2. **Feature Interactions**: Captures complex relationships between chemical properties that influence wine quality.
-3. **Robustness**: Handles class imbalance and potential outliers in chemical measurements without extensive preprocessing.
-
 ```{python}
 # Dynamically extract the top 2 features
 # top2 = fi_table.head(2)
@@ -634,21 +627,21 @@ alcohol_importance = round(float(fi_table.head(1)['importance'].iloc[0]), 4)
 
 ```
 
-### Key Findings
+#### Key Findings
 
 - **Alcohol content** emerged as the most important predictor (importance: `{python} alcohol_importance`), consistent with wine industry knowledge.
 - **Volatile acidity** and **density** were also important predictors.
 - The optimized Random Forest model achieved a balanced performance across classes with test accuracy of `{python} cv_score` and well-balanced precision and recall.
 
 
-### Practical Applications
+#### Practical Applications
 
 1. **Quality Control**: Winemakers can use the model to predict quality during production
 2. **Process Optimization**: Focus on controlling key chemical properties identified by feature importance
 3. **Objective Assessment**: Complement subjective expert ratings with data-driven predictions
 
 
-### Limitations and Future Work
+#### Limitations and Future Work
 
 1. **Dataset Scope**: Limited to Portuguese "Vinho Verde" wines.
 2. **Feature Set**: Additional sensory or temporal data could further improve predictions.
