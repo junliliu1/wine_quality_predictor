@@ -1,22 +1,22 @@
 """
-This script evaluates a trained Random Forest wine quality classifier
+Evaluate a trained Random Forest wine quality classifier
 by analyzing feature importances.
 
-It performs the following steps:
-1. Loads processed wine data from a CSV file.
+This script performs the following steps:
+1. Loads the cleaned, processed wine dataset.
 2. Loads a trained Random Forest model from disk.
-3. Extracts feature importances from the model.
-4. Creates and saves a horizontal bar plot of feature importances.
-5. Saves a table of the top features (including cumulative importance).
+3. Extracts and ranks feature importances.
+4. Generates a horizontal bar plot of feature importance.
+5. Saves both a figure and a CSV table including cumulative importance.
 
-Usage (from terminal):
-$ python scripts/06_evaluate_using_feature_importance.py \
-    --input-csv data/processed/wine_data_cleaned.csv \
-    --model-path results/models/rf_wine_models.pkl \
-    --output-dir results/evaluation
+Usage:
+    python scripts/06_evaluate_using_feature_importance.py \
+        --input-csv data/processed/wine_data_cleaned.csv \
+        --model-path results/models/rf_wine_models.pkl \
+        --output-dir results/evaluation
 
-NOTE: The model should be trained on the same features as in the
-processed CSV (e.g., via 04_train_wine_quality_classifier.py).
+NOTE:
+    The model must be trained on the same feature set as the input CSV.
 """
 
 from pathlib import Path
@@ -33,7 +33,7 @@ import numpy as np
     "--input-csv",
     type=click.Path(exists=True),
     required=True,
-    help="Path to the processed wine data CSV.",
+    help="Path to the processed wine dataset (CSV).",
 )
 @click.option(
     "--model-path",
@@ -45,71 +45,68 @@ import numpy as np
     "--output-dir",
     type=click.Path(),
     default="results/evaluation",
-    help="Directory to save feature importance figure and table.",
+    help="Directory to save plots and tables.",
 )
 def main(input_csv: str, model_path: str, output_dir: str) -> None:
-    """Evaluate feature importance for the trained Random Forest model."""
+    """Analyze and visualize feature importance for a trained Random Forest model."""
     print("=" * 60)
-    print("STEP 6: EVALUATE MODEL (FEATURE IMPORTANCE)")
+    print("STEP 6: MODEL EVALUATION — FEATURE IMPORTANCE")
     print("=" * 60)
 
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # 1. Load processed data
+    # ----------------------------------------------------
+    # 1. Load processed dataset
+    # ----------------------------------------------------
     data = pd.read_csv(input_csv)
-    print(f"Loaded {len(data)} samples from {input_csv}")
+    print(f"Loaded {len(data)} samples from: {input_csv}")
 
-    # 2. Prepare feature matrix X (same as in training script)
-    drop_cols = ["quality", "quality_category"]
-    drop_cols = [c for c in drop_cols if c in data.columns]
+    # Feature selection (must match training script)
+    drop_cols = [col for col in ["quality", "quality_category"] if col in data.columns]
     X = data.drop(columns=drop_cols)
     feature_names = X.columns.tolist()
-    print(f"Using {len(feature_names)} features for importance analysis.")
 
-    # 3. Load trained model
+    print(f"Using {len(feature_names)} predictor features for analysis.")
+
+    # ----------------------------------------------------
+    # 2. Load trained model
+    # ----------------------------------------------------
     with open(model_path, "rb") as f:
-        rf_model = pickle.load(f)
-    print(f"Loaded trained model from {model_path}")
+        model = pickle.load(f)
+    print(f"Loaded trained model from: {model_path}")
 
-    # Check that model has feature_importances_
-    if not hasattr(rf_model, "feature_importances_"):
+    if not hasattr(model, "feature_importances_"):
         raise AttributeError(
-            "Loaded model does not have 'feature_importances_' attribute. "
-            "Make sure it is a tree-based model such as RandomForestClassifier."
+            "Loaded model does not provide feature_importances_. "
+            "Ensure you are loading a RandomForestClassifier or similar tree-based model."
         )
 
-    # 4. Build feature importance DataFrame
-    feature_importance = pd.DataFrame(
-        {
-            "feature": feature_names,
-            "importance": rf_model.feature_importances_,
-        }
-    ).sort_values("importance", ascending=False)
+    # ----------------------------------------------------
+    # 3. Compute feature importance DataFrame
+    # ----------------------------------------------------
+    feature_importance = pd.DataFrame({
+        "feature": feature_names,
+        "importance": model.feature_importances_,
+    }).sort_values("importance", ascending=False)
 
-    # 5. Plot feature importances (horizontal bar chart)
+    # ----------------------------------------------------
+    # 4. Create horizontal bar chart
+    # ----------------------------------------------------
     plt.figure(figsize=(10, 8))
 
-    # Normalize importances for coloring
-    norm_importance = feature_importance["importance"] / feature_importance[
-        "importance"
-    ].max()
-    colors = plt.cm.viridis(norm_importance)
+    norm = feature_importance["importance"] / feature_importance["importance"].max()
+    colors = plt.cm.viridis(norm)
 
     plt.barh(
-        range(len(feature_importance)),
+        feature_importance["feature"],
         feature_importance["importance"],
         color=colors,
     )
-    plt.yticks(range(len(feature_importance)), feature_importance["feature"])
     plt.xlabel("Feature Importance", fontsize=12)
-    plt.title(
-        "Random Forest Feature Importance Analysis",
-        fontsize=14,
-        fontweight="bold",
-    )
+    plt.title("Random Forest Feature Importance", fontsize=14, fontweight="bold")
     plt.gca().invert_yaxis()
-    plt.grid(True, alpha=0.3)
+    plt.grid(axis="x", alpha=0.3)
     plt.tight_layout()
 
     fig_path = output_path / "feature_importance_random_forest.png"
@@ -117,22 +114,28 @@ def main(input_csv: str, model_path: str, output_dir: str) -> None:
     plt.close()
     print(f"Saved feature importance figure to: {fig_path}")
 
-    # 6. Save table of importances (including cumulative importance)
-    feature_importance["cumulative_importance"] = feature_importance[
-        "importance"
-    ].cumsum()
+    # ----------------------------------------------------
+    # 5. Save feature importance table
+    # ----------------------------------------------------
+    feature_importance["cumulative_importance"] = feature_importance["importance"].cumsum()
 
     table_path = output_path / "feature_importance_table.csv"
     feature_importance.to_csv(table_path, index=False)
     print(f"Saved feature importance table to: {table_path}")
 
-    # Print top 5 to console (similar to original notebook)
-    top5 = feature_importance.head()
+    # ----------------------------------------------------
+    # 6. Print top features
+    # ----------------------------------------------------
     print("\nTop 5 Most Important Features:")
-    print(top5[["feature", "importance"]].to_string(index=False))
+    print(
+        feature_importance[["feature", "importance"]]
+        .head(5)
+        .to_string(index=False)
+    )
+
     print(
         f"\nCumulative importance of top 5 features: "
-        f"{top5['importance'].sum():.3f}"
+        f"{feature_importance['importance'].head(5).sum():.3f}"
     )
 
     print("\nFeature importance evaluation complete!")

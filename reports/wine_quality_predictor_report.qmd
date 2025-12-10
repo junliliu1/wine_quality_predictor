@@ -18,6 +18,9 @@ bibliography: references.bib
 execute:
   echo: false
   warning: false
+  python:
+    eval: true
+    enabled: true
 
 editor: source
 ---
@@ -253,6 +256,7 @@ Before proceeding with analysis, we perform comprehensive data validation checks
 We validated the raw red and white wine datasets prior to analysis by confirming correct file structure, column names, and data types, and verifying the absence of missing or empty observations. Duplicate records (1,177 rows) were removed from the combined dataset, resulting in 5,320 unique samples. All features fell within expected ranges, category levels were valid, and the target variable showed a highly imbalanced—but expected—quality distribution. Correlation checks indicated no problematic collinearity or data leakage issues.
 
 
+
 ### 2. Exploratory Data Analysis
 
 Our exploratory analysis reveals key insights about the wine quality dataset:
@@ -276,6 +280,7 @@ These patterns inform our modeling strategy: the class imbalance requires carefu
 ![Feature Correlation Heatmap](../results/eda/correlation_heatmap.png){#fig-correlation-heatmap}
 
 @fig-correlation-heatmap displays the correlations between all physicochemical features, helping identify potential multicollinearity issues for our models.
+
 
 ### 3. Data Preprocessing for Random Forest
 
@@ -365,6 +370,7 @@ test_dist_df
 
 
 This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.
+
 
 ### 4. Random Forest Model Development
 
@@ -470,6 +476,7 @@ These results indicate that the model fits the training data very well while mai
 
 ```
 
+
 ### 5. Model Evaluation 
 
 The following script is used to compute the confusion matrix and classification report on the test set:
@@ -540,6 +547,7 @@ gains in predictive accuracy.
 
 In this step, we evaluate the performance of the trained Random Forest classifier using a confusion matrix and a detailed classification report. The evaluation script loads the cleaned dataset, applies the previously trained model, and computes key metrics such as precision, recall, and F1-score for each wine-quality class.
 
+
 ##### 5.1.1 Confusion Matrix
 
 The confusion matrix provides a visual summary of how well the model distinguishes between the different categories, while the classification report breaks down performance per class.
@@ -567,9 +575,10 @@ plt.show()
 ```
 
 
-**Interpretation of Confusion Matrix**
+###### Interpretation of Confusion Matrix
 
 The model correctly classifies most Medium (6–7) and Low (3–5) quality wines, which form the majority of the dataset. However, it rarely predicts the High (8–9) class correctly, reflecting the very small number of training examples in this category.
+
 
 ##### 5.1.2 Classification Report
 
@@ -592,53 +601,233 @@ else:
     print(f"Classification report not found at: {report_path}")
 ```
 
-**Interpretation of Classification Report**
+
+###### Interpretation of Classification Report
 
 The overall accuracy of 75% suggests that the model performs reasonably well.
 The weighted averages are high because most samples belong to the Medium and Low classes, which the model predicts effectively.
 However, the macro average is much lower (≈0.49), indicating that the model performs poorly on the rare High (8–9) class.
 
+
 ##### 5.1.3 Discussion
 
 Overall, the Random Forest model is suitable for predicting Low and Medium wine quality but not reliable for detecting High-quality wines. Improving performance on the minority class may require techniques such as resampling, class weighting, or training a different model.
 
-#### Why Random Forest Excelled:
 
-1. **Ensemble Advantage**: By aggregating predictions from multiple decision trees, Random Forest reduced overfitting and improved generalization compared to single models.
+#### 5.2 Feature Importance Analysis
 
-2. **Feature Interactions**: The model effectively captured complex interactions between chemical properties that influence wine quality.
+To better understand how the Random Forest classifier makes its predictions, we analyzed the importance of each input feature. Tree-based models such as Random Forests compute importance scores based on how much each feature reduces impurity across all decision trees in the ensemble.
 
-3. **Robustness**: Random Forest handled the class imbalance and potential outliers in chemical measurements without extensive preprocessing.
+The analysis script loads the processed dataset and the trained model, extracts the feature importances, and generates both a visualization and a ranked table of feature contributions. This allows us to identify which chemical properties of the wine were most influential in determining wine-quality categories.
 
-#### Key Findings:
+```{python}
+#| label: fig-feature-importance
+#| fig-cap: "Feature Importance Scores from the Random Forest Model"
+#| fig-align: center
 
-- **Alcohol content** emerged as the most important predictor (importance: ~0.147), aligning with wine industry knowledge
-- **Volatile acidity** (importance: ~0.105) and **density** (importance: ~0.105) were also important predictors
-- The initial Random Forest model (~74.6% accuracy) slightly outperformed the grid-search optimized model (~74.2%), suggesting the default parameters were already well-suited for this dataset
-- Random Forest outperformed other classifiers: Gradient Boosting (~73.1%), Logistic Regression (~72.6%), and SVM (~59.8%)
+from PIL import Image
+import matplotlib.pyplot as plt
 
-#### Practical Applications:
+img_path = "../results/evaluation/feature_importance_random_forest.png"
+
+img = Image.open(img_path)
+plt.imshow(img)
+plt.axis("off")
+plt.title("Feature Importance (Random Forest)", fontsize=14)
+plt.show()
+
+```
+
+The top features identified by the model are shown below:
+
+```{python}
+#| label: tbl-feature-importance
+#| tbl-cap: "Top 5 Most Important Features Identified by the Random Forest Model"
+
+import pandas as pd
+
+table_path = "../results/evaluation/feature_importance_table.csv"
+fi_table = pd.read_csv(table_path)
+
+fi_table.head(5)
+
+```
+
+```{python}
+# Dynamically extract the top 2 features
+top2 = fi_table.head(2)
+top2_features = " and ".join(top2['feature'].tolist())
+```
+
+The feature importance analysis above indicates that `{python} top2_features` features play a substantial role in distinguishing wine-quality categories in this dataset. The remaining features contribute smaller but still meaningful incremental value.
+
+
+#### 5.3 Hyperparameter Tuning of Random Forest
+
+To improve predictive performance, the Random Forest classifier was tuned to optimize its hyperparameters for the task of predicting wine quality categories. The tuning process aimed to maximize model accuracy while ensuring balanced performance across all quality classes, particularly addressing the underrepresented "High (8-9)" category.
+
+Stratified cross-validation was used to evaluate different combinations of hyperparameters, and class imbalance was handled using balanced class weights to ensure the minority class contributed proportionally to the training process. The resulting optimized model demonstrates improved generalization and robust performance on unseen test data.
+
+
+##### 5.3.1 Class Distribution
+
+The distribution of wine quality categories in the training and test sets is shown in Tables @tbl-train_dist_df and @tbl-test_dist_df (created during the data preprocessing stage). These tables summarize both the number of samples and the percentage of each quality class in the respective datasets.
+
+As shown, the dataset exhibits a noticeable class imbalance, particularly for the minority "High (8-9)" category. To address this, the Random Forest classifier was trained using class_weight="balanced" to ensure the model adequately learns from underrepresented classes without being biased toward the majority categories.
+
+
+#### 5.3.2 Hyperparameter Tuning Results
+
+The GridSearchCV process explored 324 combinations of hyperparameters over 5-fold stratified cross-validation. The best hyperparameters identified are shown in Table @tbl-best_params_df.
+
+```{python}
+#| label: tuning-results
+#| echo: false
+import json
+from pathlib import Path
+
+# Paths
+
+metrics_path = Path("../results/evaluation/rf_test_metrics.json")
+tuning_summary_path = Path("../results/evaluation/rf_hyperparameter_tuning_results.txt")
+
+# Load test metrics
+
+with open(metrics_path, "r") as f:
+    test_metrics = json.load(f)
+
+# Read tuning summary to extract best params and CV score
+
+best_params = {}
+cv_score = None
+with open(tuning_summary_path, "r") as f:
+    for line in f:
+        if line.startswith("  "):
+            param, value = line.strip().split(": ")
+            best_params[param] = value
+        elif "Best cross-validation accuracy" in line:
+            cv_score = float(line.strip().split(": ")[1])
+```
+
+
+```{python}
+#| label: tbl-best_params_df
+#| tbl-cap: Best Random Forest Hyperparameters
+import pandas as pd
+
+best_params_df = pd.DataFrame({
+"Hyperparameter": list(best_params.keys()),
+"Value": list(best_params.values())
+})
+best_params_df
+
+```
+
+```{python}
+#| label: cv-score
+cv_score
+
+```
+
+
+The best cross-validation accuracy achieved was `{python} cv_score`, indicating consistent performance across the training folds.
+
+These hyperparameters balance tree complexity and generalization. For example, max_depth of `{python} best_params["max_depth"]` allows sufficiently deep trees, while `{python} best_params["min_samples_leaf"]` prevents overfitting small branches. Limiting the number of features considered at each split using `{python} best_params["max_features"]` helps improve model robustness.
+
+
+#### 5.3.3 Test Set Performance
+
+The performance of the optimized Random Forest model was evaluated on the held-out test set. The key metrics are summarized in Table @tbl-test_metrics_df.
+
+```{python}
+#| label: tbl-test_metrics_df
+#| tbl-cap: Optimized Random Forest Test Set Performance
+
+import pandas as pd
+
+test_metrics_df = pd.DataFrame({
+    "Metric": ["Accuracy", "Precision", "Recall", "F1-Score"],
+    "Value": [
+        round(test_metrics["accuracy"],3),
+        round(test_metrics["precision"], 3),
+        round(test_metrics["recall"],3),
+        round(test_metrics["f1_score"],3)
+    ]
+})
+
+test_metrics_df
+```
+
+The accuracy of `{python} round(test_metrics["accuracy"],3)` indicates that the model generalizes well to unseen data. The balanced precision (`{python} round(test_metrics["precision"], 3)`) and recall (`{python} round(test_metrics["recall"],3)`) suggest that the model does not disproportionately favor any class despite the underlying class imbalance. The slightly lower F1-score (`{python} round(test_metrics["f1_score"],3)`) reflects some trade-offs in correctly classifying the minority "High (8-9)" wines, which is expected given their rarity.
+
+
+#### 5.3.4 Confusion Matrix
+
+The confusion matrix @fig-conf-matrix summarizes the model’s predictions on the test set across all wine quality categories. It provides detailed insight into per-class performance, highlighting where the model succeeds and where misclassifications occur.
+
+The confusion matrix (Figure 1) illustrates how the model performs across the three wine quality categories. The use of balanced class weights helped the classifier better identify the minority "High (8-9)" wines while maintaining accuracy on the more common categories.
+
+![](../results/evaluation/confusion_matrix_random_forest_optimized.png){#fig-conf-matrix width=60%}
+
+Key observations from the confusion matrix include:
+
+- The model correctly classifies the majority of "Medium (6-7)" and "Low (3-5)" wines, which are the dominant classes in the dataset.
+
+- Importantly, the previously underrepresented "High (8-9)" wines, which had virtually no correct predictions before hyperparameter tuning of the Random Forest model, are now having some values classified more accurately. This improvement is largely due to the use of balanced class weights during training and hyperparameter tuning.
+
+- Some misclassifications still occur for the "High (8-9)" category, reflecting its rarity and the inherent difficulty in predicting minority classes. However, the optimized Random Forest achieves a meaningful trade-off between overall accuracy and minority class recall.
+
+Key Takeaways: 
+
+- Hyperparameter tuning with GridSearchCV, combined with class balancing, has improved model generalization and robustness.
+
+- The optimized Random Forest can now handle imbalanced class distributions effectively, providing both high accuracy and better sensitivity for the minority class.
+
+
+###### Why Random Forest Excelled
+
+1. **Ensemble Advantage**: Aggregating predictions from multiple decision trees reduces overfitting and improves generalization compared to single models.
+2. **Feature Interactions**: Captures complex relationships between chemical properties that influence wine quality.
+3. **Robustness**: Handles class imbalance and potential outliers in chemical measurements without extensive preprocessing.
+
+```{python}
+# Dynamically extract the top 2 features
+# top2 = fi_table.head(2)
+# top2_features = " and ".join(top2['feature'].tolist())
+alcohol_importance = round(float(fi_table.head(1)['importance'].iloc[0]), 4)
+
+```
+
+### Key Findings
+
+- **Alcohol content** emerged as the most important predictor (importance: `{python} alcohol_importance`), consistent with wine industry knowledge.
+- **Volatile acidity** and **density** were also important predictors.
+- The optimized Random Forest model achieved a balanced performance across classes with test accuracy of `{python} cv_score` and well-balanced precision and recall.
+
+
+### Practical Applications
 
 1. **Quality Control**: Winemakers can use the model to predict quality during production
 2. **Process Optimization**: Focus on controlling key chemical properties identified by feature importance
 3. **Objective Assessment**: Complement subjective expert ratings with data-driven predictions
 
-#### Limitations and Future Work:
 
-1. **Dataset Scope**: Limited to Portuguese "Vinho Verde" wines
-2. **Feature Set**: Additional sensory data could improve predictions
-3. **Temporal Factors**: Wine aging effects not captured
-4. **Class Imbalance**: High-quality wines (8-9) represent only ~3% of samples, making prediction of this class challenging
-5. **Duplicate Removal Impact**: Removing 1,177 duplicate rows reduced accuracy from ~82.5% to ~74.6%, suggesting the duplicates may have been artificially inflating model performance
-6. **Future Directions**: 
-   - Extend to other wine regions and varieties
-   - Incorporate temporal data and aging models
-   - Address class imbalance with techniques like SMOTE
-   - Develop real-time quality monitoring systems
+### Limitations and Future Work
 
-## Conclusion
+1. **Dataset Scope**: Limited to Portuguese "Vinho Verde" wines.
+2. **Feature Set**: Additional sensory or temporal data could further improve predictions.
+3. **Class Imbalance**: High-quality wines (8-9) represent only ~3% of samples; model tuning with balanced class weights helped reduce bias toward majority classes.
+4. **Future Directions**: 
+   - Extend the model to other wine regions and varieties.
+   - Incorporate temporal data and wine aging effects.
+   - Explore additional techniques for handling class imbalance (e.g., SMOTE).
+   - Develop real-time quality monitoring systems.
 
-This project successfully demonstrated that Random Forest is an effective choice for predicting wine quality from physicochemical properties. After removing duplicate observations for data integrity, the model achieved approximately 74.6% accuracy, significantly outperforming the baseline (~59.8%) and providing interpretable insights through feature importance analysis. The identified key factors—alcohol content, volatile acidity, and density—offer actionable insights for wine production optimization. Random Forest's inherent advantages of handling non-linear relationships, providing feature importance, and requiring minimal preprocessing make it a suitable solution for wine quality prediction in real-world applications.
+
+### Conclusion
+
+This project demonstrated that the Random Forest classifier is effective for predicting wine quality from physicochemical properties. The optimized model achieved a test accuracy of `{python} cv_score` with well-balanced precision and recall, showing good generalization to unseen data. Feature importance analysis highlighted alcohol content, volatile acidity, and density as key predictors, providing actionable insights for wine production optimization. Random Forest's advantages—handling non-linear relationships, managing class imbalance, and providing interpretable features—make it a suitable choice for wine quality prediction in practice.
+
 
 ## References
 
