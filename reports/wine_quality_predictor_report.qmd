@@ -3,7 +3,6 @@ title: Predicting Wine Quality using Random Forest Classifier
 author: "Junli Liu, Purity Jangaya, Luis Alonso Alvarez & Jimmy Wang"
 date: "2025/11/20"
 jupyter: python3
-git 
 format:
   html:
     toc: true
@@ -48,8 +47,7 @@ We selected Random Forest as our primary algorithm for several reasons:
 
 1. Can Random Forest effectively predict wine quality from physicochemical properties?
 2. Which chemical properties are most important for determining wine quality?
-3. How does Random Forest performance compare to other classification methods?
-4. What are the optimal hyperparameters for our Random Forest model?
+3. What are the optimal hyperparameters for our Random Forest model?
 
 ## Methods
 

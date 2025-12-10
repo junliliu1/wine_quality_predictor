@@ -97,7 +97,7 @@ python scripts/02_clean_data.py --red-wine data/raw/winequality-red.csv \
            --white-wine data/raw/winequality-white.csv --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
-python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/eda
+python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/figures
 
 # 4. Model Fitting/Training
 python scripts/04_train_wine_quality_classifier.py \

@@ -13,7 +13,7 @@ This script:
 - Saves all plots as high-resolution PNG files
 
 Usage:
-    python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/eda
+    python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/figures
     
     Or with default values (can run with play button in VS Code):
     python scripts/03_eda.py

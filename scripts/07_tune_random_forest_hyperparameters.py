@@ -65,7 +65,7 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, con
 )
 def main(splits_pkl, output_model, output_dir, cv_folds, n_jobs):
     print("=" * 60)
-    print("STEP 8: HYPERPARAMETER TUNING FOR RANDOM FOREST")
+    print("STEP 7: HYPERPARAMETER TUNING FOR RANDOM FOREST")
     print("=" * 60)
 
     output_path = Path(output_dir)
