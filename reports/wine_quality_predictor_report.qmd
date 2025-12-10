@@ -3,7 +3,7 @@ title: Predicting Wine Quality using Random Forest Classifier
 author: "Junli Liu, Purity Jangaya, Luis Alonso Alvarez & Jimmy Wang"
 date: "2025/11/20"
 jupyter: python3
-
+git 
 format:
   html:
     toc: true
