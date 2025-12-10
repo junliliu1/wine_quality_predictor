@@ -122,7 +122,6 @@ python scripts/07_tune_random_forest_hyperparameters.py \
 
 # 6. Render the final report
 quarto render reports/wine_quality_predictor_report.qmd --to html
-quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
 
 The output HTML file `(wine_quality_predictor_report.html)` will appear in the `reports/` folder.
