@@ -7,7 +7,7 @@ This project predicts wine quality categories (Low, Medium, High) from physicoch
 ## Contributors
 
 * **Junli Liu** ([@junliliu1](https://github.com/junliliu1))
-* **Luis Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
+* **Luis Alonso Alvarez** ([@luisalonso8](https://github.com/luisalonso8))
 * **Purity Jangaya** ([@PurityJ](https://github.com/Purityj))
 * **Jimmy Wang** ([@jimmy2026-V](https://github.com/jimmy2026-V))
 
@@ -41,7 +41,7 @@ Follow these steps to set up the environment and run the analysis:
 
 ### 1. Clone this repository
 
-Clone this repository and cd to the root of the repository using these commands: 
+Clone this repository and cd to the root of the repository using these commands:
 
 ```bash
 git clone https://github.com/junliliu1/wine_quality_predictor.git
@@ -64,25 +64,24 @@ Copy and paste that URL into your browser.
 
 3. In JupyterLab, open a terminal by clicking File → New → Terminal in the top-left menu.
 
-4. To run the whole analysis run the following commands:
+4. To run the full analysis pipeline, execute the following command:
 
 ```bash
-python scripts/generate_figures.py --input-csv data/processed/wine_data_cleaned.csv \
-    --out_dir="results"
-
-quarto render reports/wine_quality_predictor_report.qmd --to html
-quarto render reports/wine_quality_predictor_report.qmd --to pdf
+python scripts/run_all_scripts.py
 ```
+
+This script runs all processing, modeling, and evaluation steps and automatically generates both the HTML and PDF versions of the final report. You can find the generated files in the results/ folder.
+To view the report, copy the path to either the HTML or PDF file and open it in your browser.
 
 5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
 
 ```bash
 # 1. Download/Extract Data
-python scripts/download_data.py \
+python scripts/01_download_data.py \
     --output-dir data/raw
 
 # 2. Clean/Transform Data
-python scripts/clean_data.py \
+python scripts/02_clean_data.py \
     --red-wine data/raw/winequality-red.csv \
     --white-wine data/raw/winequality-white.csv \
     --output-path data/processed/wine_data_cleaned.csv
@@ -98,29 +97,40 @@ python scripts/04_train_wine_quality_classifier.py \
      --output-model models/rf_wine_models.pkl
 
 # 5. Model Evaluation
+python scripts/05_evaluate_using_confusion_matrix.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --model-path results/models/rf_wine_models.pkl \
+  --output-dir results/evaluation \
+python scripts/06_evaluate_using_feature_importance.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --model-path results/models/rf_wine_models.pkl \
+  --output-dir results/evaluation
+python scripts/07_tune_random_forest_hyperparameters.py \
+  --input-csv data/processed/wine_data_cleaned.csv \
+  --output-model results/models/rf_wine_model_optimized.pkl \
+  --output-dir results/evaluation \
+
 
 # 6. Render the final report
 quarto render reports/wine_quality_predictor_report.qmd --to html
 quarto render reports/wine_quality_predictor_report.qmd --to pdf
 ```
 
+You can find the generated files in the results/ folder.
+To view the report, copy the path to either the HTML or PDF file and open it in your browser.
+
 ### Script Details
 
 | Script | Description | Input | Output |
 |--------|-------------|-------|--------|
-<<<<<<< HEAD
-| `download_data.py` | Download/Extract Data | UCI URLs | `data/raw/*.csv` |
-| `clean_data.py` | Clean/Transform Data | Raw CSVs | `data/processed/wine_data_cleaned.csv` |
-| `03_eda.py` | Exploratory Data Analysis | `data/processed/cleaned_wine.csv` | `results/eda/*.png` (3 visualizations) |
-=======
 | `01_download_data.py` | Download/Extract raw wine quality datasets | UCI URLs | `data/raw/*.csv` |
 | `02_clean_data.py` | Clean, merge, and transform raw data | `data/raw/winequality-red.csv`, `data/raw/winequality-white.csv` | `data/processed/wine_data_cleaned.csv` |
-| `03_preprocess_data.py` | (Optional) Split into train/test, encode labels, scale features | `data/processed/wine_data_cleaned.csv` | `data/processed/train_test_data.pkl` |
+| `03_eda.py` | Exploratory Data Analysis - generate visualizations | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
 | `04_train_wine_quality_classifier.py` | Train Random Forest classifier | `data/processed/wine_data_cleaned.csv` | `models/rf_wine_models.pkl` |
-| `05_evaluate_model.py` | Evaluate model (metrics, confusion matrix, feature importance) | `models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/plots/*`, `results/metrics/*.json` |
-| `generate_figures.py` | Generate all figures for the final report | `data/processed/wine_data_cleaned.csv` | `results/figures/*` |
+| `05_evaluate_using_confusion_matrix.py` | Evaluate the baseline Random Forest using a confusion matrix and classification report on the test set. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/confusion_matrix_random_forest_initial.png`, `results/evaluation/classification_report_random_forest_initial.txt` |
+| `06_evaluate_using_feature_importance.py` | Analyze and visualize Random Forest feature importances. | `results/models/rf_wine_models.pkl`, `data/processed/wine_data_cleaned.csv` | `results/evaluation/feature_importance_random_forest.png`, `results/evaluation/feature_importance_table.csv` |
+| `07_tune_random_forest_hyperparameters.py` | Hyperparameter tuning for Random Forest via `GridSearchCV`, plus evaluation of the optimized model. | `data/processed/wine_data_cleaned.csv` | `results/models/rf_wine_model_optimized.pkl`, `results/evaluation/confusion_matrix_random_forest_optimized.png`, `results/evaluation/rf_hyperparameter_tuning_results.txt` |
 | `reports/wine_quality_predictor_report.qmd` | Render final report | Processed data + generated figures | HTML + PDF files in `reports/` |
->>>>>>> main
 
 #### Clean up
 
@@ -208,7 +218,8 @@ where you launched the container, and then type `docker compose rm`
 - Stopping it does NOT delete it. To remove it, run this: `docker rm <container_id>`
 
 ## Project Structure
-```
+
+```bash
 wine_quality_predictor/
 │
 ├── data/
@@ -236,7 +247,9 @@ wine_quality_predictor/
 │   ├── 02_clean_data.py
 │   ├── 03_eda.py
 │   ├── 04_train_wine_quality_classifier.py
-│   └── 05_evaluate_model.py
+│   └── 05_evaluate_using_confusion_matrix.py
+│   ├── 06_evaluate_using_feature_importance.py
+│   └── 07_tune_random_forest_hyperparameters.py
 │
 ├── environment.yml
 ├── conda-lock.yml

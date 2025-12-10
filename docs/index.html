@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Junli Liu, Luis Alvarez, Purity Jangaya &amp; Jimmy Wang">
+<meta name="dcterms.date" content="2025-11-20">
+
+<title>Predicting Wine Quality using Random Forest Classifier</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="wine_quality_predictor_report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/popper.min.js"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="wine_quality_predictor_report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="wine_quality_predictor_report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="wine_quality_predictor_report_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="wine_quality_predictor_report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="wine_quality_predictor_report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="wine_quality_predictor_report_files/libs/bootstrap/bootstrap-1e118674f8eeaf0dc11d6faf9a2d8791.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
+  <ul>
+  <li><a href="#why-random-forest" id="toc-why-random-forest" class="nav-link" data-scroll-target="#why-random-forest">Why Random Forest?</a></li>
+  <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research Questions</a></li>
+  </ul></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#analysis-pipeline" id="toc-analysis-pipeline" class="nav-link" data-scroll-target="#analysis-pipeline">Analysis Pipeline</a></li>
+  </ul></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
+  <ul>
+  <li><a href="#data-loading-and-preparation" id="toc-data-loading-and-preparation" class="nav-link" data-scroll-target="#data-loading-and-preparation">1. Data Loading and Preparation</a></li>
+  <li><a href="#data-validation" id="toc-data-validation" class="nav-link" data-scroll-target="#data-validation">1.1 Data Validation</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">2. Exploratory Data Analysis</a></li>
+  <li><a href="#data-preprocessing-for-random-forest" id="toc-data-preprocessing-for-random-forest" class="nav-link" data-scroll-target="#data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</a></li>
+  <li><a href="#random-forest-model-development" id="toc-random-forest-model-development" class="nav-link" data-scroll-target="#random-forest-model-development">4. Random Forest Model Development</a></li>
+  <li><a href="#random-forest-hyperparameter-optimization" id="toc-random-forest-hyperparameter-optimization" class="nav-link" data-scroll-target="#random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</a></li>
+  <li><a href="#model-comparison---validating-random-forest-choice" id="toc-model-comparison---validating-random-forest-choice" class="nav-link" data-scroll-target="#model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</a></li>
+  <li><a href="#random-forest-deep-dive---tree-visualization-and-analysis" id="toc-random-forest-deep-dive---tree-visualization-and-analysis" class="nav-link" data-scroll-target="#random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</a></li>
+  </ul></li>
+  <li><a href="#results-discussion" id="toc-results-discussion" class="nav-link" data-scroll-target="#results-discussion">Results &amp; Discussion</a>
+  <ul>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
+  <ul class="collapse">
+  <li><a href="#why-random-forest-excelled" id="toc-why-random-forest-excelled" class="nav-link" data-scroll-target="#why-random-forest-excelled">Why Random Forest Excelled:</a></li>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings:</a></li>
+  <li><a href="#practical-applications" id="toc-practical-applications" class="nav-link" data-scroll-target="#practical-applications">Practical Applications:</a></li>
+  <li><a href="#limitations-and-future-work" id="toc-limitations-and-future-work" class="nav-link" data-scroll-target="#limitations-and-future-work">Limitations and Future Work:</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="wine_quality_predictor_report.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Predicting Wine Quality using Random Forest Classifier</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Junli Liu, Luis Alvarez, Purity Jangaya &amp; Jimmy Wang </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>This project implements a Random Forest classifier to predict wine quality based on physicochemical properties. Using the Wine Quality dataset from the UCI Machine Learning Repository (6,497 samples with 11 features, reduced to 5,320 after removing duplicates), we develop a robust prediction model that leverages the ensemble learning capabilities of Random Forest. Our analysis demonstrates that Random Forest effectively handles the non-linear relationships between chemical properties and wine quality, achieving an accuracy of approximately 74.6% on the test set. The model identifies alcohol content, volatile acidity, and density as the most influential factors in determining wine quality. This work provides valuable insights for wine producers to optimize production processes and maintain consistent quality standards.</p>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Wine quality assessment traditionally relies on subjective evaluation by human experts. This project explores the potential of machine learning, specifically Random Forest classification, to predict wine quality from objective physicochemical measurements.</p>
+<section id="why-random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="why-random-forest">Why Random Forest?</h3>
+<p>We selected Random Forest as our primary algorithm for several reasons:</p>
+<ol type="1">
+<li><strong>Ensemble Learning</strong>: Combines multiple decision trees to reduce overfitting and improve generalization</li>
+<li><strong>Feature Importance</strong>: Provides built-in feature importance metrics for understanding wine quality factors</li>
+<li><strong>Robustness</strong>: Handles outliers and noise effectively without extensive preprocessing</li>
+<li><strong>Non-linear Relationships</strong>: Captures complex interactions between chemical properties</li>
+<li><strong>No Scaling Required</strong>: Works well with features at different scales</li>
+<li><strong>Out-of-Bag (OOB) Error</strong>: Provides unbiased error estimates without separate validation set</li>
+</ol>
+</section>
+<section id="research-questions" class="level3">
+<h3 class="anchored" data-anchor-id="research-questions">Research Questions</h3>
+<ol type="1">
+<li>Can Random Forest effectively predict wine quality from physicochemical properties?</li>
+<li>Which chemical properties are most important for determining wine quality?</li>
+<li>How does Random Forest performance compare to other classification methods?</li>
+<li>What are the optimal hyperparameters for our Random Forest model?</li>
+</ol>
+</section>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
+<p><strong>Dataset</strong>: Wine Quality Dataset (Cortez et al., 2009) - <strong>Red wine</strong>: 1,599 samples - <strong>White wine</strong>: 4,898 samples - <strong>Total</strong>: 6,497 samples</p>
+<p><strong>Features (11 physicochemical properties)</strong>: 1. Fixed acidity (g/dm³) 2. Volatile acidity (g/dm³) 3. Citric acid (g/dm³) 4. Residual sugar (g/dm³) 5. Chlorides (g/dm³) 6. Free sulfur dioxide (mg/dm³) 7. Total sulfur dioxide (mg/dm³) 8. Density (g/cm³) 9. pH 10. Sulphates (g/dm³) 11. Alcohol (% vol.)</p>
+<p><strong>Target</strong>: Quality score (3-9, originally 0-10 scale)</p>
+<p><strong>Citation</strong>: P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4):547-553, 2009.</p>
+</section>
+<section id="analysis-pipeline" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-pipeline">Analysis Pipeline</h3>
+<ol type="1">
+<li><strong>Data Preparation</strong>
+<ul>
+<li>Load and combine red/white wine datasets</li>
+<li>Handle class imbalance through stratified splitting</li>
+<li>Create quality categories (Low: 3-5, Medium: 6-7, High: 8-9)</li>
+</ul></li>
+<li><strong>Exploratory Data Analysis</strong>
+<ul>
+<li>Analyze quality distribution</li>
+<li>Examine feature correlations</li>
+<li>Identify potential predictors</li>
+</ul></li>
+<li><strong>Random Forest Implementation</strong>
+<ul>
+<li>Build initial Random Forest with 100 trees</li>
+<li>Analyze out-of-bag (OOB) error</li>
+<li>Extract feature importances</li>
+<li>Evaluate model performance</li>
+</ul></li>
+<li><strong>Hyperparameter Optimization</strong>
+<ul>
+<li>Grid search for optimal parameters:
+<ul>
+<li>n_estimators (number of trees)</li>
+<li>max_depth (tree depth)</li>
+<li>min_samples_split</li>
+<li>min_samples_leaf</li>
+<li>max_features</li>
+</ul></li>
+</ul></li>
+<li><strong>Model Comparison</strong>
+<ul>
+<li>Benchmark against Logistic Regression, SVM, and Gradient Boosting</li>
+<li>Validate Random Forest superiority</li>
+</ul></li>
+<li><strong>Final Evaluation</strong>
+<ul>
+<li>Test set performance</li>
+<li>Confusion matrix analysis</li>
+<li>Feature importance interpretation</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<section id="data-loading-and-preparation" class="level3">
+<h3 class="anchored" data-anchor-id="data-loading-and-preparation">1. Data Loading and Preparation</h3>
+<p>To begin our analysis, we downloaded the two wine quality datasets provided by Cortez et al.&nbsp;(2009). These files contain measurements for red and white wine samples, including physicochemical properties and expert-assigned quality scores.</p>
+<p>The data were downloaded using our automated script, which saves the raw files into the data/raw directory. The output from this script is shown in Table <strong>?@tbl-download-log</strong>.</p>
+<p>The two datasets downloaded were:</p>
+<ul>
+<li>winequality-red.csv</li>
+<li>winequality-white.csv</li>
+</ul>
+<p>These files form the foundation of the analysis that follows.</p>
+</section>
+<section id="data-validation" class="level3">
+<h3 class="anchored" data-anchor-id="data-validation">1.1 Data Validation</h3>
+<p>Before proceeding with analysis, we perform comprehensive data validation checks following the <a href="https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist">Data Validation Checklist</a> to ensure data quality and integrity.</p>
+</section>
+<section id="exploratory-data-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis">2. Exploratory Data Analysis</h3>
+</section>
+<section id="data-preprocessing-for-random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</h3>
+<p>The wine quality dataset was prepared for analysis by separating the features (physicochemical properties of the wine) from the target variable (the quality category). The quality categories were encoded numerically so that the machine learning model could process them.</p>
+<p>To ensure the model learned effectively, the dataset was split into a training set (used to train the model) and a test set (used to evaluate the model’s performance on unseen data). The split was stratified, meaning the proportions of each quality category in the training and test sets match the overall dataset distribution. This helps the model fairly learn from all classes of wine quality.</p>
+<p><strong>Summary of Data Split</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Samples</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Training Set</td>
+<td>4256</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td>Test Set</td>
+<td>1064</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Class Distribution – Training Set</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quality Category</th>
+<th>Samples</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>High (8-9)</td>
+<td>122</td>
+<td>2.9%</td>
+</tr>
+<tr class="even">
+<td>Low (3-5)</td>
+<td>1591</td>
+<td>37.4%</td>
+</tr>
+<tr class="odd">
+<td>Medium (6-7)</td>
+<td>2543</td>
+<td>59.8%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Class Distribution – Test Set</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quality Category</th>
+<th>Samples</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>High (8-9)</td>
+<td>31</td>
+<td>2.9%</td>
+</tr>
+<tr class="even">
+<td>Low (3-5)</td>
+<td>397</td>
+<td>37.3%</td>
+</tr>
+<tr class="odd">
+<td>Medium (6-7)</td>
+<td>636</td>
+<td>59.8%</td>
+</tr>
+</tbody>
+</table>
+<p>This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.</p>
+</section>
+<section id="random-forest-model-development" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest-model-development">4. Random Forest Model Development</h3>
+<p>Random Forest Model Development</p>
+<p>A Random Forest classifier, consisting of 100 decision trees, was trained on the processed data to predict wine quality. The model’s performance was evaluated using several metrics:</p>
+<ul>
+<li><p>Training Accuracy: Measures how well the model fits the training data.</p></li>
+<li><p>Test Accuracy: Measures how well the model generalizes to new, unseen data.</p></li>
+<li><p>Out-of-Bag (OOB) Score: An internal validation method for Random Forests, giving an unbiased estimate of model performance.</p></li>
+<li><p>Cross-Validation Accuracy: Performance measured by repeatedly splitting the training set into subsets to validate the model, ensuring stability of results.</p></li>
+</ul>
+<p><strong>Table for Random Forest Performance</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 36%">
+<col style="width: 63%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Training Accuracy</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td>Test Accuracy</td>
+<td>0.7462</td>
+</tr>
+<tr class="odd">
+<td>Out-of-Bag (OOB) Score</td>
+<td>0.7333</td>
+</tr>
+<tr class="even">
+<td>Cross-Validation Accuracy</td>
+<td>0.7324 ± 0.0371</td>
+</tr>
+</tbody>
+</table>
+<p>These results indicate that the model fits the training data very well while maintaining good predictive performance on unseen data. This demonstrates that the Random Forest classifier is effective in predicting wine quality based on physicochemical properties.</p>
+</section>
+<section id="random-forest-hyperparameter-optimization" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</h3>
+</section>
+<section id="model-comparison---validating-random-forest-choice" class="level3">
+<h3 class="anchored" data-anchor-id="model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</h3>
+</section>
+<section id="random-forest-deep-dive---tree-visualization-and-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</h3>
+</section>
+</section>
+<section id="results-discussion" class="level2">
+<h2 class="anchored" data-anchor-id="results-discussion">Results &amp; Discussion</h2>
+<section id="discussion" class="level3">
+<h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
+<p>Our Random Forest classifier successfully predicted wine quality from physicochemical properties, validating our hypothesis that ensemble learning methods are well-suited for this domain.</p>
+<section id="why-random-forest-excelled" class="level4">
+<h4 class="anchored" data-anchor-id="why-random-forest-excelled">Why Random Forest Excelled:</h4>
+<ol type="1">
+<li><p><strong>Ensemble Advantage</strong>: By aggregating predictions from multiple decision trees, Random Forest reduced overfitting and improved generalization compared to single models.</p></li>
+<li><p><strong>Feature Interactions</strong>: The model effectively captured complex interactions between chemical properties that influence wine quality.</p></li>
+<li><p><strong>Robustness</strong>: Random Forest handled the class imbalance and potential outliers in chemical measurements without extensive preprocessing.</p></li>
+</ol>
+</section>
+<section id="key-findings" class="level4">
+<h4 class="anchored" data-anchor-id="key-findings">Key Findings:</h4>
+<ul>
+<li><strong>Alcohol content</strong> emerged as the most important predictor (importance: ~0.147), aligning with wine industry knowledge</li>
+<li><strong>Volatile acidity</strong> (importance: ~0.105) and <strong>density</strong> (importance: ~0.105) were also important predictors</li>
+<li>The initial Random Forest model (~74.6% accuracy) slightly outperformed the grid-search optimized model (~74.2%), suggesting the default parameters were already well-suited for this dataset</li>
+<li>Random Forest outperformed other classifiers: Gradient Boosting (~73.1%), Logistic Regression (~72.6%), and SVM (~59.8%)</li>
+</ul>
+</section>
+<section id="practical-applications" class="level4">
+<h4 class="anchored" data-anchor-id="practical-applications">Practical Applications:</h4>
+<ol type="1">
+<li><strong>Quality Control</strong>: Winemakers can use the model to predict quality during production</li>
+<li><strong>Process Optimization</strong>: Focus on controlling key chemical properties identified by feature importance</li>
+<li><strong>Objective Assessment</strong>: Complement subjective expert ratings with data-driven predictions</li>
+</ol>
+</section>
+<section id="limitations-and-future-work" class="level4">
+<h4 class="anchored" data-anchor-id="limitations-and-future-work">Limitations and Future Work:</h4>
+<ol type="1">
+<li><strong>Dataset Scope</strong>: Limited to Portuguese “Vinho Verde” wines</li>
+<li><strong>Feature Set</strong>: Additional sensory data could improve predictions</li>
+<li><strong>Temporal Factors</strong>: Wine aging effects not captured</li>
+<li><strong>Class Imbalance</strong>: High-quality wines (8-9) represent only ~3% of samples, making prediction of this class challenging</li>
+<li><strong>Duplicate Removal Impact</strong>: Removing 1,177 duplicate rows reduced accuracy from ~82.5% to ~74.6%, suggesting the duplicates may have been artificially inflating model performance</li>
+<li><strong>Future Directions</strong>:
+<ul>
+<li>Extend to other wine regions and varieties</li>
+<li>Incorporate temporal data and aging models</li>
+<li>Address class imbalance with techniques like SMOTE</li>
+<li>Develop real-time quality monitoring systems</li>
+</ul></li>
+</ol>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>This project successfully demonstrated that Random Forest is an effective choice for predicting wine quality from physicochemical properties. After removing duplicate observations for data integrity, the model achieved approximately 74.6% accuracy, significantly outperforming the baseline (~59.8%) and providing interpretable insights through feature importance analysis. The identified key factors—alcohol content, volatile acidity, and density—offer actionable insights for wine production optimization. Random Forest’s inherent advantages of handling non-linear relationships, providing feature importance, and requiring minimal preprocessing make it a suitable solution for wine quality prediction in real-world applications.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p>Cortez, P., Cerdeira, A., Almeida, F., Matos, T., &amp; Reis, J. (2009). Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4), 547-553. https://doi.org/10.1016/j.dss.2009.05.016</p></li>
+<li><p>Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32. https://doi.org/10.1023/A:1010933404324</p></li>
+<li><p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository. Irvine, CA: University of California, School of Information and Computer Science. https://archive.ics.uci.edu/ml</p></li>
+<li><p>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., &amp; Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825-2830.</p></li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
