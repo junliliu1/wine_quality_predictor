@@ -20,7 +20,7 @@ Usage:
 
 Arguments:
     --input-file: Path to the cleaned wine CSV file (default: data/processed/cleaned_wine.csv)
-    --output-dir: Directory to save EDA plots (default: results/eda)
+    --output-dir: Directory to save EDA plots (default: results/figures)
 
 Output:
     - quality_distributions.png: Quality distribution visualizations
@@ -133,7 +133,7 @@ def create_correlation_heatmap(wine_data, feature_cols, output_dir):
               default="data/processed/cleaned_wine.csv",
               help="Path to cleaned wine data CSV")
 @click.option("--output-dir", type=click.Path(), 
-              default="results/eda", 
+              default="results/figures", 
               help="Output directory for EDA plots and results")
 def main(input_file, output_dir):
     """Perform EDA on cleaned wine quality data."""

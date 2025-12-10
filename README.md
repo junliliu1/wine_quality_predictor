@@ -82,8 +82,8 @@ Copy and paste that URL into your browser.
 python scripts/run_all_scripts.py
 ```
 
-This script runs all processing, modeling, and evaluation steps and automatically generates both the HTML and PDF versions of the final report. You can find the generated files in the results/ folder.
-To view the report, copy the path to either the HTML or PDF file and open it in your browser.
+This script runs all processing, modeling, and evaluation steps and automatically generates both the HTML versions of the final report. You can find the generated files in the results/ folder.
+To view the report, copy the path to either the HTML file and paste it to open it in your browser.
 
 5. To run the individual python scripts, on a terminal (in the docker jupyter lab) and run the following commands:
 
