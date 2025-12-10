@@ -50,10 +50,23 @@ cd wine_quality_predictor
 
 ### 2. Run the Analysis
 
-1. Run the following command on the terminal(on your computer) to start docker container:
+1. Run the following command on the terminal(on your computer) to build and start docker container:
 
 ```bash
+docker compose build
 docker compose up
+```
+
+If you get: container name already exists, run this command to remove it:
+
+```bash
+docker rm -f wine-quality-predictor
+```
+
+If you want to rebuild after pulling new changes, run this command:
+
+```bash
+docker compose up --build
 ```
 
 2. In the terminal, look for a URL that starts with `http://127.0.0.1:8888/lab` 
@@ -78,18 +91,14 @@ To view the report, copy the path to either the HTML or PDF file and open it in 
 ```bash
 # 1. Download/Extract Data
 python scripts/01_download_data.py \
-    --output-dir data/raw
+    --output-dir data/raw 
 
 # 2. Clean/Transform Data
-python scripts/02_clean_data.py \
-    --red-wine data/raw/winequality-red.csv \
-    --white-wine data/raw/winequality-white.csv \
-    --output-path data/processed/wine_data_cleaned.csv
+python scripts/02_clean_data.py --red-wine data/raw/winequality-red.csv \
+           --white-wine data/raw/winequality-white.csv --output-path data/processed/wine_data_cleaned.csv
 
 # 3. Exploratory Data Analysis
-python scripts/03_eda.py \
-    --input-file data/processed/cleaned_wine.csv \
-    --output-dir results/eda
+python scripts/03_eda.py --input-file data/processed/cleaned_wine.csv --output-dir results/eda
 
 # 4. Model Fitting/Training
 python scripts/04_train_wine_quality_classifier.py \
@@ -98,17 +107,23 @@ python scripts/04_train_wine_quality_classifier.py \
 
 # 5. Model Evaluation
 python scripts/05_evaluate_using_confusion_matrix.py \
-  --input-csv data/processed/wine_data_cleaned.csv \
-  --model-path results/models/rf_wine_models.pkl \
-  --output-dir results/evaluation \
+    --model-path results/models/rf_wine_models.pkl \
+    --splits-path results/splits.pkl \
+    --output-dir results/evaluation
+
+
 python scripts/06_evaluate_using_feature_importance.py \
-  --input-csv data/processed/wine_data_cleaned.csv \
-  --model-path results/models/rf_wine_models.pkl \
-  --output-dir results/evaluation
+        --input-csv data/processed/wine_data_cleaned.csv \
+        --model-path results/models/rf_wine_models.pkl \
+        --output-dir results/evaluation
+
+#this may take awhile
 python scripts/07_tune_random_forest_hyperparameters.py \
-  --input-csv data/processed/wine_data_cleaned.csv \
-  --output-model results/models/rf_wine_model_optimized.pkl \
-  --output-dir results/evaluation \
+    --splits-pkl results/splits.pkl \
+    --output-model results/models/rf_wine_model_optimized.pkl \
+    --output-dir results/evaluation \
+    --cv-folds 5 \
+    --n-jobs -1
 
 
 # 6. Render the final report
@@ -190,7 +205,7 @@ docker pull junli73889/wine-quality-predictor:latest
 2. Run the container
 
 ```bash
-docker run -it -p 8888:8888 -v $(pwd):/workplace junli73889/wine-quality-predictor:latest
+docker run -it -p 8888:8888 -v $(pwd):/workspace junli73889/wine-quality-predictor:latest
 ```
 
 3. The container will start and provide a localhost URL. Look for a URL that starts with http://127.0.0.1:8888/lab. Copy and paste that URL into your browser.
@@ -198,7 +213,7 @@ docker run -it -p 8888:8888 -v $(pwd):/workplace junli73889/wine-quality-predict
 *Note: In case of a docker container port conflict, e.g, if port 8888 is already in use, run docker on a different container as shown below:*
 
 ```bash
-docker run -it -p 8889:8888 -v $(pwd):/workplace junli73889/wine-quality-predictor:latest
+docker run -it -p 8889:8888 -v $(pwd):/workspace junli73889/wine-quality-predictor:latest
 ```
 
 Alternatively, stop the container using port 8888:
