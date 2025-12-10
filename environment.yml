@@ -20,6 +20,6 @@ dependencies:
   - click>=8.0
   - requests>=2.28
   - tectonic
-  - pip:
-      - quarto-cli>=1.4
+  # - pip:
+  #     - quarto-cli>=1.4
   

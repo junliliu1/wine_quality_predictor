@@ -50,11 +50,10 @@ cd wine_quality_predictor
 
 ### 2. Run the Analysis
 
-1. Run the following command on the terminal(on your computer) to build and start docker container:
+1. Run the following command on the terminal(on your computer) to build and start the docker container:
 
 ```bash
-docker compose build
-docker compose up
+docker compose up --build
 ```
 
 If you get: container name already exists, run this command to remove it:
