@@ -1,45 +1,56 @@
 """
 Download wine quality datasets from UCI Machine Learning Repository.
 
-Usage: python scripts/01_download_data.py --output-dir data/raw
+This script downloads the red and white wine quality datasets and saves them
+to the specified output directory.
+
+Usage:
+    python scripts/01_download_data.py --output-dir data/raw
 """
 
-import click
-import requests
+import sys
 from pathlib import Path
 
-WINE_DATA_URLS = {
-    "red": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
-    "white": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv"
-}
+import click
 
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def download_file(url: str, output_path: Path) -> None:
-    """Download file from URL."""
-    response = requests.get(url, timeout=30)
-    response.raise_for_status()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(response.content)
-    print(f"  Downloaded: {output_path}")
+from src.data_download import download_wine_datasets, WINE_DATA_URLS
 
 
 @click.command()
-@click.option("--output-dir", type=click.Path(), default="data/raw", help="Output directory")
-@click.option("--red-url", type=str, default=WINE_DATA_URLS["red"], help="Red wine URL")
-@click.option("--white-url", type=str, default=WINE_DATA_URLS["white"], help="White wine URL")
+@click.option(
+    "--output-dir",
+    type=click.Path(),
+    default="data/raw",
+    help="Output directory for downloaded datasets",
+)
+@click.option(
+    "--red-url",
+    type=str,
+    default=WINE_DATA_URLS["red"],
+    help="URL for red wine dataset",
+)
+@click.option(
+    "--white-url",
+    type=str,
+    default=WINE_DATA_URLS["white"],
+    help="URL for white wine dataset",
+)
 def main(output_dir: str, red_url: str, white_url: str) -> None:
-    """Download wine datasets."""
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
+    """Download wine quality datasets from UCI repository."""
     print("=" * 60)
     print("STEP 1: DOWNLOAD DATA")
     print("=" * 60)
 
-    download_file(red_url, output_path / "winequality-red.csv")
-    download_file(white_url, output_path / "winequality-white.csv")
+    red_path, white_path = download_wine_datasets(
+        output_dir, red_url=red_url, white_url=white_url
+    )
 
-    print(f"\nDownload complete! Files saved to: {output_path}")
+    print(f"  Downloaded: {red_path}")
+    print(f"  Downloaded: {white_path}")
+    print(f"\nDownload complete! Files saved to: {output_dir}")
 
 
 if __name__ == "__main__":
