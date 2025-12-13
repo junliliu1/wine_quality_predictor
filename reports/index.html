@@ -74,23 +74,34 @@ div.csl-indent {
   <ul>
   <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary">Summary</a></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
-  <ul class="collapse">
+  <ul>
   <li><a href="#why-random-forest" id="toc-why-random-forest" class="nav-link" data-scroll-target="#why-random-forest">Why Random Forest?</a></li>
   <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research Questions</a></li>
   </ul></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
-  <ul class="collapse">
+  <ul>
   <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
   <li><a href="#analysis-pipeline" id="toc-analysis-pipeline" class="nav-link" data-scroll-target="#analysis-pipeline">Analysis Pipeline</a></li>
   </ul></li>
   <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
-  <ul class="collapse">
+  <ul>
   <li><a href="#data-loading-and-preparation" id="toc-data-loading-and-preparation" class="nav-link" data-scroll-target="#data-loading-and-preparation">1. Data Loading and Preparation</a></li>
   <li><a href="#data-validation" id="toc-data-validation" class="nav-link" data-scroll-target="#data-validation">1.1 Data Validation</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">2. Exploratory Data Analysis</a></li>
   <li><a href="#data-preprocessing-for-random-forest" id="toc-data-preprocessing-for-random-forest" class="nav-link" data-scroll-target="#data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</a></li>
   <li><a href="#random-forest-model-development" id="toc-random-forest-model-development" class="nav-link" data-scroll-target="#random-forest-model-development">4. Random Forest Model Development</a></li>
-  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">5. Model Evaluation</a></li>
+  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">5. Model Evaluation</a>
+  <ul class="collapse">
+  <li><a href="#baseline-random-forest-confusion-matrix-and-classification-report" id="toc-baseline-random-forest-confusion-matrix-and-classification-report" class="nav-link" data-scroll-target="#baseline-random-forest-confusion-matrix-and-classification-report">5.1. Baseline Random Forest: Confusion Matrix and Classification Report</a></li>
+  <li><a href="#feature-importance-analysis" id="toc-feature-importance-analysis" class="nav-link" data-scroll-target="#feature-importance-analysis">5.2 Feature Importance Analysis</a></li>
+  <li><a href="#hyperparameter-tuning-of-random-forest" id="toc-hyperparameter-tuning-of-random-forest" class="nav-link" data-scroll-target="#hyperparameter-tuning-of-random-forest">5.3 Hyperparameter Tuning of Random Forest</a></li>
+  <li><a href="#hyperparameter-tuning-results" id="toc-hyperparameter-tuning-results" class="nav-link" data-scroll-target="#hyperparameter-tuning-results">5.3.2 Hyperparameter Tuning Results</a></li>
+  <li><a href="#test-set-performance" id="toc-test-set-performance" class="nav-link" data-scroll-target="#test-set-performance">5.3.3 Test Set Performance</a></li>
+  <li><a href="#confusion-matrix-1" id="toc-confusion-matrix-1" class="nav-link" data-scroll-target="#confusion-matrix-1">5.3.4 Confusion Matrix</a></li>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings</a></li>
+  <li><a href="#practical-applications" id="toc-practical-applications" class="nav-link" data-scroll-target="#practical-applications">Practical Applications</a></li>
+  <li><a href="#limitations-and-future-work" id="toc-limitations-and-future-work" class="nav-link" data-scroll-target="#limitations-and-future-work">Limitations and Future Work</a></li>
+  </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -284,7 +295,7 @@ Figure&nbsp;3: Feature correlation heatmap
 Table&nbsp;1: Summary of Data Split
 </figcaption>
 <div aria-describedby="tbl-summary_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -326,7 +337,7 @@ Table&nbsp;1: Summary of Data Split
 Table&nbsp;2: Training set class distribution table
 </figcaption>
 <div aria-describedby="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="40">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -374,7 +385,7 @@ Table&nbsp;2: Training set class distribution table
 Table&nbsp;3: Test set class distribution table
 </figcaption>
 <div aria-describedby="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="41">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
 
@@ -433,7 +444,7 @@ Table&nbsp;3: Test set class distribution table
 Table&nbsp;4: Random Forest performance table
 </figcaption>
 <div aria-describedby="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="43">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
 
@@ -562,7 +573,7 @@ Figure&nbsp;5: Feature Importance Scores from the Random Forest Model
 Table&nbsp;5: Top 5 Most Important Features Identified by the Random Forest Model
 </figcaption>
 <div aria-describedby="tbl-feature-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="48">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -637,7 +648,7 @@ Table&nbsp;5: Top 5 Most Important Features Identified by the Random Forest Mode
 Table&nbsp;6: Best Random Forest Hyperparameters
 </figcaption>
 <div aria-describedby="tbl-best_params_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="51">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 
 
@@ -685,7 +696,7 @@ Table&nbsp;6: Best Random Forest Hyperparameters
 </div>
 </div>
 <div id="cell-cv-score" class="cell" data-execution_count="16">
-<div id="cv-score" class="cell-output cell-output-display" data-execution_count="52">
+<div id="cv-score" class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>0.7375</code></pre>
 </div>
 </div>
@@ -702,7 +713,7 @@ Table&nbsp;6: Best Random Forest Hyperparameters
 Table&nbsp;7: Optimized Random Forest Test Set Performance
 </figcaption>
 <div aria-describedby="tbl-test_metrics_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
 
