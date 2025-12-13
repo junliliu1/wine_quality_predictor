@@ -62,6 +62,10 @@ https://github.com/UBC-MDS/data-analysis-review-2025/issues/49
   **Who:** @junliliu1  
   **Evidence:** Commit [ghi789](link-to-commit), `docs/wine_quality_predictor_report.pdf`.
 
+  - **Change:** HTML rendering Improved 
+  **Who:** @Purityj  
+  **Evidence:** PR: https://github.com/junliliu1/wine_quality_predictor/pull/67
+
 ### Other Changes
 - **README.md edits to incorporate Milestone 4 changes.**  
   **Who:** @Purityj  
@@ -69,8 +73,10 @@ https://github.com/UBC-MDS/data-analysis-review-2025/issues/49
 
 ---
 
-## [1.0.0] - 2025-11-30
-### Initial Release
-- Implemented Random Forest classifier for wine quality prediction.  
-- Generated HTML and PDF reports.  
-- Added EDA, model evaluation, and plots.
+### [3.0.0] - 2025-12-13
+### Added peer-review fixes
+- Suppressed warnings in outputs
+- Fixed PDF rendering issue
+- Updated Discussion section based on feedback
+- Fixed html rendering issues 
+- 
