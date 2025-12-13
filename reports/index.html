@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Junli Liu, Luis Alvarez, Purity Jangaya &amp; Jimmy Wang">
+<meta name="author" content="Junli Liu, Purity Jangaya, Luis Alonso Alvarez &amp; Jimmy Wang">
 <meta name="dcterms.date" content="2025-11-20">
 
 <title>Predicting Wine Quality using Random Forest Classifier</title>
@@ -22,10 +22,30 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="wine_quality_predictor_report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="wine_quality_predictor_report_files/libs/clipboard/clipboard.min.js"></script>
 <script src="wine_quality_predictor_report_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="wine_quality_predictor_report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="wine_quality_predictor_report_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -37,6 +57,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="wine_quality_predictor_report_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="wine_quality_predictor_report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="wine_quality_predictor_report_files/libs/bootstrap/bootstrap-1e118674f8eeaf0dc11d6faf9a2d8791.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -67,21 +90,20 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">2. Exploratory Data Analysis</a></li>
   <li><a href="#data-preprocessing-for-random-forest" id="toc-data-preprocessing-for-random-forest" class="nav-link" data-scroll-target="#data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</a></li>
   <li><a href="#random-forest-model-development" id="toc-random-forest-model-development" class="nav-link" data-scroll-target="#random-forest-model-development">4. Random Forest Model Development</a></li>
-  <li><a href="#random-forest-hyperparameter-optimization" id="toc-random-forest-hyperparameter-optimization" class="nav-link" data-scroll-target="#random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</a></li>
-  <li><a href="#model-comparison---validating-random-forest-choice" id="toc-model-comparison---validating-random-forest-choice" class="nav-link" data-scroll-target="#model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</a></li>
-  <li><a href="#random-forest-deep-dive---tree-visualization-and-analysis" id="toc-random-forest-deep-dive---tree-visualization-and-analysis" class="nav-link" data-scroll-target="#random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</a></li>
-  </ul></li>
-  <li><a href="#results-discussion" id="toc-results-discussion" class="nav-link" data-scroll-target="#results-discussion">Results &amp; Discussion</a>
-  <ul>
-  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
+  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">5. Model Evaluation</a>
   <ul class="collapse">
-  <li><a href="#why-random-forest-excelled" id="toc-why-random-forest-excelled" class="nav-link" data-scroll-target="#why-random-forest-excelled">Why Random Forest Excelled:</a></li>
-  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings:</a></li>
-  <li><a href="#practical-applications" id="toc-practical-applications" class="nav-link" data-scroll-target="#practical-applications">Practical Applications:</a></li>
-  <li><a href="#limitations-and-future-work" id="toc-limitations-and-future-work" class="nav-link" data-scroll-target="#limitations-and-future-work">Limitations and Future Work:</a></li>
-  </ul></li>
+  <li><a href="#baseline-random-forest-confusion-matrix-and-classification-report" id="toc-baseline-random-forest-confusion-matrix-and-classification-report" class="nav-link" data-scroll-target="#baseline-random-forest-confusion-matrix-and-classification-report">5.1. Baseline Random Forest: Confusion Matrix and Classification Report</a></li>
+  <li><a href="#feature-importance-analysis" id="toc-feature-importance-analysis" class="nav-link" data-scroll-target="#feature-importance-analysis">5.2 Feature Importance Analysis</a></li>
+  <li><a href="#hyperparameter-tuning-of-random-forest" id="toc-hyperparameter-tuning-of-random-forest" class="nav-link" data-scroll-target="#hyperparameter-tuning-of-random-forest">5.3 Hyperparameter Tuning of Random Forest</a></li>
+  <li><a href="#hyperparameter-tuning-results" id="toc-hyperparameter-tuning-results" class="nav-link" data-scroll-target="#hyperparameter-tuning-results">5.3.2 Hyperparameter Tuning Results</a></li>
+  <li><a href="#test-set-performance" id="toc-test-set-performance" class="nav-link" data-scroll-target="#test-set-performance">5.3.3 Test Set Performance</a></li>
+  <li><a href="#confusion-matrix-1" id="toc-confusion-matrix-1" class="nav-link" data-scroll-target="#confusion-matrix-1">5.3.4 Confusion Matrix</a></li>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings</a></li>
+  <li><a href="#practical-applications" id="toc-practical-applications" class="nav-link" data-scroll-target="#practical-applications">Practical Applications</a></li>
+  <li><a href="#limitations-and-future-work" id="toc-limitations-and-future-work" class="nav-link" data-scroll-target="#limitations-and-future-work">Limitations and Future Work</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="../wine_quality_predictor_report.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -100,7 +122,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Junli Liu, Luis Alvarez, Purity Jangaya &amp; Jimmy Wang </p>
+             <p>Junli Liu, Purity Jangaya, Luis Alonso Alvarez &amp; Jimmy Wang </p>
           </div>
   </div>
     
@@ -143,16 +165,16 @@ ul.task-list li input[type="checkbox"] {
 <ol type="1">
 <li>Can Random Forest effectively predict wine quality from physicochemical properties?</li>
 <li>Which chemical properties are most important for determining wine quality?</li>
-<li>How does Random Forest performance compare to other classification methods?</li>
 <li>What are the optimal hyperparameters for our Random Forest model?</li>
 </ol>
 </section>
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<p>We used the Wine Quality Dataset from <span class="citation" data-cites="cortez2009modeling">(<a href="#ref-cortez2009modeling" role="doc-biblioref">Cortez et al. 2009</a>)</span>, comprising 6,490 wine samples (1,599 red, 4,891 white) with 11 physicochemical features and quality scores ranging from 3-9. After comprehensive data validation using Pandera, we trained a Random Forest classifier <span class="citation" data-cites="breiman2001random">(<a href="#ref-breiman2001random" role="doc-biblioref">Breiman 2001</a>)</span> using scikit-learn <span class="citation" data-cites="pedregosa2011scikit">(<a href="#ref-pedregosa2011scikit" role="doc-biblioref">Pedregosa et al. 2011</a>)</span>. The data was split 75/25 for training and testing, with 5-fold stratified cross-validation for model selection. Hyperparameters were optimized using grid search over number of trees (100-300), max depth (10-30, None), and minimum samples for splitting (2-10) and leaf nodes (1-4). Model performance was evaluated using accuracy, precision, recall, F1-score, and confusion matrices, with feature importance rankings to identify key wine quality predictors.</p>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<p><strong>Dataset</strong>: Wine Quality Dataset (Cortez et al., 2009) - <strong>Red wine</strong>: 1,599 samples - <strong>White wine</strong>: 4,898 samples - <strong>Total</strong>: 6,497 samples</p>
+<p><strong>Dataset</strong>: Wine Quality Dataset (<span class="citation" data-cites="cortez2009modeling">Cortez et al. (<a href="#ref-cortez2009modeling" role="doc-biblioref">2009</a>)</span>) - <strong>Red wine</strong>: 1,599 samples - <strong>White wine</strong>: 4,898 samples - <strong>Subtotal</strong>: 6,497 samples - <strong>Total</strong>: 6,497 samples (5,320 after removing duplicates)</p>
 <p><strong>Features (11 physicochemical properties)</strong>: 1. Fixed acidity (g/dm³) 2. Volatile acidity (g/dm³) 3. Citric acid (g/dm³) 4. Residual sugar (g/dm³) 5. Chlorides (g/dm³) 6. Free sulfur dioxide (mg/dm³) 7. Total sulfur dioxide (mg/dm³) 8. Density (g/cm³) 9. pH 10. Sulphates (g/dm³) 11. Alcohol (% vol.)</p>
 <p><strong>Target</strong>: Quality score (3-9, originally 0-10 scale)</p>
 <p><strong>Citation</strong>: P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4):547-553, 2009.</p>
@@ -209,101 +231,201 @@ ul.task-list li input[type="checkbox"] {
 <section id="data-loading-and-preparation" class="level3">
 <h3 class="anchored" data-anchor-id="data-loading-and-preparation">1. Data Loading and Preparation</h3>
 <p>To begin our analysis, we downloaded the two wine quality datasets provided by Cortez et al.&nbsp;(2009). These files contain measurements for red and white wine samples, including physicochemical properties and expert-assigned quality scores.</p>
-<p>The data were downloaded using our automated script, which saves the raw files into the data/raw directory. The output from this script is shown in Table <strong>?@tbl-download-log</strong>.</p>
+<p>The data were downloaded using our automated script, which saves the raw files into the data/raw directory.</p>
 <p>The two datasets downloaded were:</p>
 <ul>
 <li>winequality-red.csv</li>
 <li>winequality-white.csv</li>
 </ul>
-<p>These files form the foundation of the analysis that follows.</p>
 </section>
 <section id="data-validation" class="level3">
 <h3 class="anchored" data-anchor-id="data-validation">1.1 Data Validation</h3>
-<p>Before proceeding with analysis, we perform comprehensive data validation checks following the <a href="https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist">Data Validation Checklist</a> to ensure data quality and integrity.</p>
+<p>Before proceeding with the analysis, we perform comprehensive data validation checks to ensure the quality and integrity of the dataset. Following this <a href="https://ubc-dsci.github.io/reproducible-and-trustworthy-workflows-for-data-science/lectures/130-data-validation.html#data-validation-checklist">Data Validation Checklist</a>, we use Pandera <span class="citation" data-cites="bantilan2020pandera">(<a href="#ref-bantilan2020pandera" role="doc-biblioref">Bantilan 2020</a>)</span>, a statistical schema validation library for Python, to systematically check data types, ranges, and constraints.</p>
+<p>We validated the raw red and white wine datasets prior to analysis by confirming correct file structure, column names, and data types, and verifying the absence of missing or empty observations. Duplicate records (1,177 rows) were removed from the combined dataset, resulting in 5,320 unique samples. All features fell within expected ranges, category levels were valid, and the target variable showed a highly imbalanced—but expected—quality distribution. Correlation checks indicated no problematic collinearity or data leakage issues.</p>
 </section>
 <section id="exploratory-data-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="exploratory-data-analysis">2. Exploratory Data Analysis</h3>
+<p>Our exploratory analysis reveals several key insights about the wine quality dataset:</p>
+<p><strong>Quality Distribution:</strong> As shown in <a href="#fig-quality-distribution" class="quarto-xref">Figure&nbsp;1</a>, wine quality scores follow a normal distribution centered around scores 5-6, with very few wines receiving extreme ratings (3 or 9). The dataset exhibits a significant class imbalance, with medium-quality wines (scores 6-7) comprising the majority of samples. White wines show a broader distribution across quality scores compared to red wines, which are more concentrated in the 5-6 range.</p>
+<p><strong>Feature-Quality Relationships:</strong> <a href="#fig-feature-correlations" class="quarto-xref">Figure&nbsp;2</a> demonstrates that alcohol content exhibits the strongest positive correlation with wine quality, suggesting that higher alcohol wines tend to receive better ratings. Conversely, volatile acidity shows the strongest negative correlation, indicating that wines with higher acetic acid levels are rated lower. Other notable positive correlates include citric acid and sulphates, while density and chlorides show negative associations with quality.</p>
+<p><strong>Feature Intercorrelations:</strong> The correlation heatmap in <a href="#fig-correlation-heatmap" class="quarto-xref">Figure&nbsp;3</a> reveals important relationships between physicochemical properties. Strong positive correlations exist between free and total sulfur dioxide, and between density and residual sugar. Alcohol shows a strong negative correlation with density, which is chemically expected. These intercorrelations suggest potential multicollinearity that may need to be addressed in our modeling approach, particularly when using linear methods.</p>
+<p>These patterns inform our modeling strategy: the class imbalance requires careful handling, the strong alcohol-quality relationship suggests it will be a key predictive feature, and the feature intercorrelations indicate that regularization techniques or tree-based methods may be particularly appropriate for this dataset.</p>
+<div id="fig-quality-distribution" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quality-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../results/figures/quality_distributions.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quality-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Wine quality distribution analysis showing (a) overall quality score distribution, (b) distribution by wine type, and (c) quality categories for classification
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-quality-distribution" class="quarto-xref">Figure&nbsp;1</a> shows the distribution of wine quality scores. Most wines receive medium quality scores (5-7), with very few at the extremes.</p>
+<div id="fig-feature-correlations" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-feature-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../results/figures/feature_correlations.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-feature-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Feature correlations with wine quality
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-feature-correlations" class="quarto-xref">Figure&nbsp;2</a> reveals that alcohol content shows the strongest positive correlation with quality, while volatile acidity shows the strongest negative correlation.</p>
+<div id="fig-correlation-heatmap" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-heatmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../results/figures/correlation_heatmap.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-heatmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Feature correlation heatmap
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-correlation-heatmap" class="quarto-xref">Figure&nbsp;3</a> displays the correlations between all physicochemical features, helping identify potential multicollinearity issues for our models.</p>
 </section>
 <section id="data-preprocessing-for-random-forest" class="level3">
 <h3 class="anchored" data-anchor-id="data-preprocessing-for-random-forest">3. Data Preprocessing for Random Forest</h3>
 <p>The wine quality dataset was prepared for analysis by separating the features (physicochemical properties of the wine) from the target variable (the quality category). The quality categories were encoded numerically so that the machine learning model could process them.</p>
 <p>To ensure the model learned effectively, the dataset was split into a training set (used to train the model) and a test set (used to evaluate the model’s performance on unseen data). The split was stratified, meaning the proportions of each quality category in the training and test sets match the overall dataset distribution. This helps the model fairly learn from all classes of wine quality.</p>
-<p><strong>Summary of Data Split</strong></p>
-<table class="caption-top table">
+<div class="cell" data-execution_count="3">
+<div id="tbl-summary_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="3">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-summary_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Summary of Data Split
+</figcaption>
+<div aria-describedby="tbl-summary_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
-<th>Dataset</th>
-<th>Samples</th>
-<th>Features</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Dataset</th>
+<th data-quarto-table-cell-role="th">Samples</th>
+<th data-quarto-table-cell-role="th">Features</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
 <td>Training Set</td>
 <td>4256</td>
 <td>12</td>
 </tr>
 <tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
 <td>Test Set</td>
 <td>1064</td>
 <td>12</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Class Distribution – Training Set</strong></p>
-<table class="caption-top table">
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-execution_count="4">
+<div id="tbl-train_dist_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="4">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Training set class distribution table
+</figcaption>
+<div aria-describedby="tbl-train_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
-<th>Quality Category</th>
-<th>Samples</th>
-<th>Percentage</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Quality Category</th>
+<th data-quarto-table-cell-role="th">Samples</th>
+<th data-quarto-table-cell-role="th">Percentage</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
 <td>High (8-9)</td>
 <td>122</td>
-<td>2.9%</td>
+<td>2.9</td>
 </tr>
 <tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
 <td>Low (3-5)</td>
 <td>1591</td>
-<td>37.4%</td>
+<td>37.4</td>
 </tr>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>Medium (6-7)</td>
 <td>2543</td>
-<td>59.8%</td>
+<td>59.8</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Class Distribution – Test Set</strong></p>
-<table class="caption-top table">
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-execution_count="5">
+<div id="tbl-test_dist_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="5">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Test set class distribution table
+</figcaption>
+<div aria-describedby="tbl-test_dist_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
-<th>Quality Category</th>
-<th>Samples</th>
-<th>Percentage</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Quality Category</th>
+<th data-quarto-table-cell-role="th">Samples</th>
+<th data-quarto-table-cell-role="th">Percentage</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
 <td>High (8-9)</td>
 <td>31</td>
-<td>2.9%</td>
+<td>2.9</td>
 </tr>
 <tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
 <td>Low (3-5)</td>
 <td>397</td>
-<td>37.3%</td>
+<td>37.3</td>
 </tr>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>Medium (6-7)</td>
 <td>636</td>
-<td>59.8%</td>
+<td>59.8</td>
 </tr>
 </tbody>
 </table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 <p>This preprocessing ensured that the model would learn from all classes and could generalize well to new, unseen wines.</p>
 </section>
 <section id="random-forest-model-development" class="level3">
@@ -315,73 +437,362 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Out-of-Bag (OOB) Score: An internal validation method for Random Forests, giving an unbiased estimate of model performance.</p></li>
 <li><p>Cross-Validation Accuracy: Performance measured by repeatedly splitting the training set into subsets to validate the model, ensuring stability of results.</p></li>
 </ul>
-<p><strong>Table for Random Forest Performance</strong></p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 36%">
-<col style="width: 63%">
-</colgroup>
+<div class="cell" data-execution_count="7">
+<div id="tbl-rf_perf_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Random Forest performance table
+</figcaption>
+<div aria-describedby="tbl-rf_perf_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
-<th>Metric</th>
-<th>Value</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Metric</th>
+<th data-quarto-table-cell-role="th">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
 <td>Training Accuracy</td>
 <td>1.0</td>
 </tr>
 <tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
 <td>Test Accuracy</td>
 <td>0.7462</td>
 </tr>
 <tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>Out-of-Bag (OOB) Score</td>
 <td>0.7333</td>
 </tr>
 <tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
 <td>Cross-Validation Accuracy</td>
 <td>0.7324 ± 0.0371</td>
 </tr>
 </tbody>
 </table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Note on class-specific metrics: Some classes, particularly the very high-quality wines, have very few samples. During evaluation, metrics such as precision and recall may be undefined for these classes because the model predicted zero samples in them. This does not affect the overall accuracy or the main performance conclusions of the model.</p>
 <p>These results indicate that the model fits the training data very well while maintaining good predictive performance on unseen data. This demonstrates that the Random Forest classifier is effective in predicting wine quality based on physicochemical properties.</p>
 </section>
-<section id="random-forest-hyperparameter-optimization" class="level3">
-<h3 class="anchored" data-anchor-id="random-forest-hyperparameter-optimization">5. Random Forest Hyperparameter Optimization</h3>
+<section id="model-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="model-evaluation">5. Model Evaluation</h3>
+<section id="baseline-random-forest-confusion-matrix-and-classification-report" class="level4">
+<h4 class="anchored" data-anchor-id="baseline-random-forest-confusion-matrix-and-classification-report">5.1. Baseline Random Forest: Confusion Matrix and Classification Report</h4>
+<p>In this step, we evaluate the performance of the trained Random Forest classifier using a confusion matrix and a detailed classification report. The evaluation script loads the cleaned dataset, applies the previously trained model, and computes key metrics such as precision, recall, and F1-score for each wine-quality class.</p>
+<section id="confusion-matrix" class="level5">
+<h5 class="anchored" data-anchor-id="confusion-matrix">5.1.1 Confusion Matrix</h5>
+<p>The confusion matrix provides a visual summary of how well the model distinguishes between the different categories, while the classification report breaks down performance per class.</p>
+<p>Due to the natural class imbalance in the wine-quality dataset, some classes have very few samples, which results in undefined precision and recall values (these appear as warnings during evaluation). Despite this, the evaluation helps identify where the model performs well and where predictions remain challenging.</p>
+<p>The model was evaluated using the test set generated during preprocessing.</p>
+<div id="cell-fig-confusion-matrix" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-confusion-matrix" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wine_quality_predictor_report_files/figure-html/fig-confusion-matrix-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="512" height="408">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Confusion Matrix for Random Forest Classifier
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation-of-confusion-matrix" class="level6">
+<h6 class="anchored" data-anchor-id="interpretation-of-confusion-matrix">Interpretation of Confusion Matrix</h6>
+<p>The model correctly classifies most Medium (6–7) and Low (3–5) quality wines, which form the majority of the dataset. However, it rarely predicts the High (8–9) class correctly, reflecting the very small number of training examples in this category.</p>
 </section>
-<section id="model-comparison---validating-random-forest-choice" class="level3">
-<h3 class="anchored" data-anchor-id="model-comparison---validating-random-forest-choice">6. Model Comparison - Validating Random Forest Choice</h3>
 </section>
-<section id="random-forest-deep-dive---tree-visualization-and-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="random-forest-deep-dive---tree-visualization-and-analysis">7. Random Forest Deep Dive - Tree Visualization and Analysis</h3>
+<section id="classification-report" class="level5">
+<h5 class="anchored" data-anchor-id="classification-report">5.1.2 Classification Report</h5>
+<p>The following classification report was generated by the evaluation script.</p>
+<div id="classification-report" class="cell" data-tbl-cap="Classification Report from Random Forest Model" data-execution_count="10">
+<div class="cell-output cell-output-stdout">
+<pre><code>Random Forest Classification Report
+
+              precision    recall  f1-score   support
+
+  High (8-9)       0.00      0.00      0.00        31
+   Low (3-5)       0.72      0.65      0.68       397
+Medium (6-7)       0.76      0.84      0.80       636
+
+    accuracy                           0.75      1064
+   macro avg       0.49      0.50      0.49      1064
+weighted avg       0.72      0.75      0.73      1064
+</code></pre>
+</div>
+</div>
+<section id="interpretation-of-classification-report" class="level6">
+<h6 class="anchored" data-anchor-id="interpretation-of-classification-report">Interpretation of Classification Report</h6>
+<p>The overall accuracy of 75% suggests that the model performs reasonably well. The weighted averages are high because most samples belong to the Medium and Low classes, which the model predicts effectively. However, the macro average is much lower (≈0.49), indicating that the model performs poorly on the rare High (8–9) class.</p>
 </section>
 </section>
-<section id="results-discussion" class="level2">
-<h2 class="anchored" data-anchor-id="results-discussion">Results &amp; Discussion</h2>
-<section id="discussion" class="level3">
-<h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
-<p>Our Random Forest classifier successfully predicted wine quality from physicochemical properties, validating our hypothesis that ensemble learning methods are well-suited for this domain.</p>
-<section id="why-random-forest-excelled" class="level4">
-<h4 class="anchored" data-anchor-id="why-random-forest-excelled">Why Random Forest Excelled:</h4>
-<ol type="1">
-<li><p><strong>Ensemble Advantage</strong>: By aggregating predictions from multiple decision trees, Random Forest reduced overfitting and improved generalization compared to single models.</p></li>
-<li><p><strong>Feature Interactions</strong>: The model effectively captured complex interactions between chemical properties that influence wine quality.</p></li>
-<li><p><strong>Robustness</strong>: Random Forest handled the class imbalance and potential outliers in chemical measurements without extensive preprocessing.</p></li>
-</ol>
+<section id="discussion" class="level5">
+<h5 class="anchored" data-anchor-id="discussion">5.1.3 Discussion</h5>
+<p>Overall, the Random Forest model is suitable for predicting Low and Medium wine quality but not reliable for detecting High-quality wines. Improving performance on the minority class may require techniques such as resampling, class weighting, or training a different model.</p>
+</section>
+</section>
+<section id="feature-importance-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="feature-importance-analysis">5.2 Feature Importance Analysis</h4>
+<p>To better understand how the Random Forest classifier makes its predictions, we analyzed the importance of each input feature. Tree-based models such as Random Forests compute importance scores based on how much each feature reduces impurity across all decision trees in the ensemble.</p>
+<p>The analysis script loads the processed dataset and the trained model, extracts the feature importances, and generates both a visualization and a ranked table of feature contributions. This allows us to identify which chemical properties of the wine were most influential in determining wine-quality categories.</p>
+<div id="cell-fig-feature-importance" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-feature-importance" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-feature-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wine_quality_predictor_report_files/figure-html/fig-feature-importance-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="481" height="410">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-feature-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Feature Importance Scores from the Random Forest Model
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The top features identified by the model are shown below:</p>
+<div class="cell" data-execution_count="12">
+<div id="tbl-feature-importance" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="12">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-feature-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Top 5 Most Important Features Identified by the Random Forest Model
+</figcaption>
+<div aria-describedby="tbl-feature-importance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">feature</th>
+<th data-quarto-table-cell-role="th">importance</th>
+<th data-quarto-table-cell-role="th">cumulative_importance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>alcohol</td>
+<td>0.146571</td>
+<td>0.146571</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>volatile acidity</td>
+<td>0.104908</td>
+<td>0.251479</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>density</td>
+<td>0.104558</td>
+<td>0.356038</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>total sulfur dioxide</td>
+<td>0.087766</td>
+<td>0.443804</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>free sulfur dioxide</td>
+<td>0.087265</td>
+<td>0.531069</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The feature importance analysis above indicates that alcohol and volatile acidity features play a substantial role in distinguishing wine-quality categories in this dataset. The remaining features contribute smaller but still meaningful incremental value.</p>
+</section>
+<section id="hyperparameter-tuning-of-random-forest" class="level4">
+<h4 class="anchored" data-anchor-id="hyperparameter-tuning-of-random-forest">5.3 Hyperparameter Tuning of Random Forest</h4>
+<p>To improve predictive performance, the Random Forest classifier was tuned to optimize its hyperparameters for the task of predicting wine quality categories. The tuning process aimed to maximize model accuracy while ensuring balanced performance across all quality classes, particularly addressing the underrepresented “High (8-9)” category.</p>
+<p>Stratified cross-validation was used to evaluate different combinations of hyperparameters, and class imbalance was handled using balanced class weights to ensure the minority class contributed proportionally to the training process. The resulting optimized model demonstrates improved generalization and robust performance on unseen test data.</p>
+<section id="class-distribution" class="level5">
+<h5 class="anchored" data-anchor-id="class-distribution">5.3.1 Class Distribution</h5>
+<p>The distribution of wine quality categories in the training and test sets is shown in Tables <a href="#tbl-train_dist_df" class="quarto-xref">Table&nbsp;2</a> and <a href="#tbl-test_dist_df" class="quarto-xref">Table&nbsp;3</a> (created during the data preprocessing stage). These tables summarize both the number of samples and the percentage of each quality class in the respective datasets.</p>
+<p>As shown, the dataset exhibits a noticeable class imbalance, particularly for the minority “High (8-9)” category. To address this, the Random Forest classifier was trained using class_weight=“balanced” to ensure the model adequately learns from underrepresented classes without being biased toward the majority categories.</p>
+</section>
+</section>
+<section id="hyperparameter-tuning-results" class="level4">
+<h4 class="anchored" data-anchor-id="hyperparameter-tuning-results">5.3.2 Hyperparameter Tuning Results</h4>
+<p>The GridSearchCV process explored 324 combinations of hyperparameters over 5-fold stratified cross-validation. The best hyperparameters identified are shown in Table <a href="#tbl-best_params_df" class="quarto-xref">Table&nbsp;6</a>.</p>
+<div class="cell" data-execution_count="15">
+<div id="tbl-best_params_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="15">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-best_params_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Best Random Forest Hyperparameters
+</figcaption>
+<div aria-describedby="tbl-best_params_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Hyperparameter</th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>max_depth</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>max_features</td>
+<td>sqrt</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>min_samples_leaf</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>min_samples_split</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>n_estimators</td>
+<td>200</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div id="cell-cv-score" class="cell" data-execution_count="16">
+<div id="cv-score" class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>0.7375</code></pre>
+</div>
+</div>
+<p>The best cross-validation accuracy achieved was 0.7375, indicating consistent performance across the training folds.</p>
+<p>These hyperparameters balance tree complexity and generalization. For example, max_depth of 30 allows sufficiently deep trees, while 2 prevents overfitting small branches. Limiting the number of features considered at each split using sqrt helps improve model robustness.</p>
+</section>
+<section id="test-set-performance" class="level4">
+<h4 class="anchored" data-anchor-id="test-set-performance">5.3.3 Test Set Performance</h4>
+<p>The performance of the optimized Random Forest model was evaluated on the held-out test set. The key metrics are summarized in Table <a href="#tbl-test_metrics_df" class="quarto-xref">Table&nbsp;7</a>.</p>
+<div class="cell" data-execution_count="17">
+<div id="tbl-test_metrics_df" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="17">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-test_metrics_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Optimized Random Forest Test Set Performance
+</figcaption>
+<div aria-describedby="tbl-test_metrics_df-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe do-not-create-environment cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Metric</th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Accuracy</td>
+<td>0.753</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Precision</td>
+<td>0.758</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Recall</td>
+<td>0.753</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>F1-Score</td>
+<td>0.741</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The accuracy of 0.753 indicates that the model generalizes well to unseen data. The balanced precision (0.758) and recall (0.753) suggest that the model does not disproportionately favor any class despite the underlying class imbalance. The slightly lower F1-score (0.741) reflects some trade-offs in correctly classifying the minority “High (8-9)” wines, which is expected given their rarity.</p>
+</section>
+<section id="confusion-matrix-1" class="level4">
+<h4 class="anchored" data-anchor-id="confusion-matrix-1">5.3.4 Confusion Matrix</h4>
+<p>The confusion matrix <a href="#fig-conf-matrix" class="quarto-xref">Figure&nbsp;6</a> summarizes the model’s predictions on the test set across all wine quality categories. It provides detailed insight into per-class performance, highlighting where the model succeeds and where misclassifications occur.</p>
+<p>The confusion matrix (Figure 1) illustrates how the model performs across the three wine quality categories. The use of balanced class weights helped the classifier better identify the minority “High (8-9)” wines while maintaining accuracy on the more common categories.</p>
+<div id="fig-conf-matrix" class="quarto-float quarto-figure quarto-figure-center anchored" width="60%">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-conf-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../results/evaluation/confusion_matrix_random_forest_optimized.png" id="fig-conf-matrix" class="img-fluid figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-conf-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
+<p>Key observations from the confusion matrix include:</p>
+<ul>
+<li><p>The model correctly classifies the majority of “Medium (6-7)” and “Low (3-5)” wines, which are the dominant classes in the dataset.</p></li>
+<li><p>Importantly, the previously underrepresented “High (8-9)” wines, which had virtually no correct predictions before hyperparameter tuning of the Random Forest model, are now having some values classified more accurately. This improvement is largely due to the use of balanced class weights during training and hyperparameter tuning.</p></li>
+<li><p>Some misclassifications still occur for the “High (8-9)” category, reflecting its rarity and the inherent difficulty in predicting minority classes. However, the optimized Random Forest achieves a meaningful trade-off between overall accuracy and minority class recall.</p></li>
+</ul>
+<p>Key Takeaways:</p>
+<ul>
+<li><p>Hyperparameter tuning with GridSearchCV, combined with class balancing, has improved model generalization and robustness.</p></li>
+<li><p>The optimized Random Forest can now handle imbalanced class distributions effectively, providing both high accuracy and better sensitivity for the minority class.</p></li>
+</ul>
 </section>
 <section id="key-findings" class="level4">
-<h4 class="anchored" data-anchor-id="key-findings">Key Findings:</h4>
+<h4 class="anchored" data-anchor-id="key-findings">Key Findings</h4>
 <ul>
-<li><strong>Alcohol content</strong> emerged as the most important predictor (importance: ~0.147), aligning with wine industry knowledge</li>
-<li><strong>Volatile acidity</strong> (importance: ~0.105) and <strong>density</strong> (importance: ~0.105) were also important predictors</li>
-<li>The initial Random Forest model (~74.6% accuracy) slightly outperformed the grid-search optimized model (~74.2%), suggesting the default parameters were already well-suited for this dataset</li>
-<li>Random Forest outperformed other classifiers: Gradient Boosting (~73.1%), Logistic Regression (~72.6%), and SVM (~59.8%)</li>
+<li><strong>Alcohol content</strong> emerged as the most important predictor (importance: 0.1466), consistent with wine industry knowledge.</li>
+<li><strong>Volatile acidity</strong> and <strong>density</strong> were also important predictors.</li>
+<li>The optimized Random Forest model achieved a balanced performance across classes with test accuracy of 0.7375 and well-balanced precision and recall.</li>
 </ul>
 </section>
 <section id="practical-applications" class="level4">
-<h4 class="anchored" data-anchor-id="practical-applications">Practical Applications:</h4>
+<h4 class="anchored" data-anchor-id="practical-applications">Practical Applications</h4>
 <ol type="1">
 <li><strong>Quality Control</strong>: Winemakers can use the model to predict quality during production</li>
 <li><strong>Process Optimization</strong>: Focus on controlling key chemical properties identified by feature importance</li>
@@ -389,36 +800,42 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 </section>
 <section id="limitations-and-future-work" class="level4">
-<h4 class="anchored" data-anchor-id="limitations-and-future-work">Limitations and Future Work:</h4>
+<h4 class="anchored" data-anchor-id="limitations-and-future-work">Limitations and Future Work</h4>
 <ol type="1">
-<li><strong>Dataset Scope</strong>: Limited to Portuguese “Vinho Verde” wines</li>
-<li><strong>Feature Set</strong>: Additional sensory data could improve predictions</li>
-<li><strong>Temporal Factors</strong>: Wine aging effects not captured</li>
-<li><strong>Class Imbalance</strong>: High-quality wines (8-9) represent only ~3% of samples, making prediction of this class challenging</li>
-<li><strong>Duplicate Removal Impact</strong>: Removing 1,177 duplicate rows reduced accuracy from ~82.5% to ~74.6%, suggesting the duplicates may have been artificially inflating model performance</li>
+<li><strong>Dataset Scope</strong>: Limited to Portuguese “Vinho Verde” wines.</li>
+<li><strong>Feature Set</strong>: Additional sensory or temporal data could further improve predictions.</li>
+<li><strong>Class Imbalance</strong>: High-quality wines (8-9) represent only ~3% of samples; model tuning with balanced class weights helped reduce bias toward majority classes.</li>
 <li><strong>Future Directions</strong>:
 <ul>
-<li>Extend to other wine regions and varieties</li>
-<li>Incorporate temporal data and aging models</li>
-<li>Address class imbalance with techniques like SMOTE</li>
-<li>Develop real-time quality monitoring systems</li>
+<li>Extend the model to other wine regions and varieties.</li>
+<li>Incorporate temporal data and wine aging effects.</li>
+<li>Explore additional techniques for handling class imbalance (e.g., SMOTE).</li>
+<li>Develop real-time quality monitoring systems.</li>
 </ul></li>
 </ol>
 </section>
 </section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<p>This project demonstrated that the Random Forest classifier is effective for predicting wine quality from physicochemical properties. The optimized model achieved a test accuracy of 0.7375 with well-balanced precision and recall, showing good generalization to unseen data. Feature importance analysis highlighted alcohol content, volatile acidity, and density as key predictors, providing actionable insights for wine production optimization. Random Forest’s advantages—handling non-linear relationships, managing class imbalance, and providing interpretable features—make it a suitable choice for wine quality prediction in practice.</p>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>This project successfully demonstrated that Random Forest is an effective choice for predicting wine quality from physicochemical properties. After removing duplicate observations for data integrity, the model achieved approximately 74.6% accuracy, significantly outperforming the baseline (~59.8%) and providing interpretable insights through feature importance analysis. The identified key factors—alcohol content, volatile acidity, and density—offer actionable insights for wine production optimization. Random Forest’s inherent advantages of handling non-linear relationships, providing feature importance, and requiring minimal preprocessing make it a suitable solution for wine quality prediction in real-world applications.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
-<ol type="1">
-<li><p>Cortez, P., Cerdeira, A., Almeida, F., Matos, T., &amp; Reis, J. (2009). Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4), 547-553. https://doi.org/10.1016/j.dss.2009.05.016</p></li>
-<li><p>Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32. https://doi.org/10.1023/A:1010933404324</p></li>
-<li><p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository. Irvine, CA: University of California, School of Information and Computer Science. https://archive.ics.uci.edu/ml</p></li>
-<li><p>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., &amp; Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825-2830.</p></li>
-</ol>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bantilan2020pandera" class="csl-entry" role="listitem">
+Bantilan, Niels. 2020. <span>“Pandera: Statistical Data Validation of Pandas Dataframes.”</span> In <em>SciPy</em>, 116–24.
+</div>
+<div id="ref-breiman2001random" class="csl-entry" role="listitem">
+Breiman, Leo. 2001. <span>“Random Forests.”</span> <em>Machine Learning</em> 45 (1): 5–32. <a href="https://doi.org/10.1023/A:1010933404324">https://doi.org/10.1023/A:1010933404324</a>.
+</div>
+<div id="ref-cortez2009modeling" class="csl-entry" role="listitem">
+Cortez, Paulo, A Cerdeira, F Almeida, T Matos, and J Reis. 2009. <span>“Modeling Wine Preferences by Data Mining from Physicochemical Properties.”</span> <em>Decision Support Systems</em> 47 (4): 547–53. <a href="https://doi.org/10.1016/j.dss.2009.05.016">https://doi.org/10.1016/j.dss.2009.05.016</a>.
+</div>
+<div id="ref-pedregosa2011scikit" class="csl-entry" role="listitem">
+Pedregosa, Fabian, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion, Olivier Grisel, Mathieu Blondel, et al. 2011. <span>“Scikit-Learn: Machine Learning in Python.”</span> <em>Journal of Machine Learning Research</em> 12: 2825–30.
+</div>
+</div>
 </section>
 
 </main>
