@@ -40,7 +40,7 @@ https://github.com/UBC-MDS/data-analysis-review-2025/issues/57
 
 - **Change:** Converted classification report into a table format.  
   **Who:** @jimmy2026-V  
-  **Evidence:** PR: 
+  **Evidence:** PR: [#68] (https://github.com/junliliu1/wine_quality_predictor/issues/68)
 
 - **Change:** Updated Discussion section.  
   **Who:** @luisalonso8  
@@ -55,7 +55,7 @@ https://github.com/UBC-MDS/data-analysis-review-2025/issues/49
   **Evidence:** PR [#77](https://github.com/UBC-MDS/data-analysis-review-2025/issues/49), Discussion Section and after conclussion in `reports/wine_quality_predictor_report.qmd` in Discussion section .
 - **Change:** Notebook moved to `analysis/` folder.  
   **Who:** @jimmy2026-V  
-  **Evidence:** See PR [#46](link-to-PR).  
+  **Evidence:** See PR [#79](https://github.com/junliliu1/wine_quality_predictor/pull/79).  
   
 - **Change:** PDF rendering from HTML fixed.  
   **Who:** @junliliu1  
